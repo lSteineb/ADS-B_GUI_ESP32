@@ -1,2 +1,2 @@
-# ADS-B_FR24_MSP432
+# ADS-B_Receiver_MSP432
 
