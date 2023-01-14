@@ -31,4 +31,7 @@
 *.out
 *.app
 
+.vscode
 credentials.h
+ADESP-ETD600-master
+Flightradar
