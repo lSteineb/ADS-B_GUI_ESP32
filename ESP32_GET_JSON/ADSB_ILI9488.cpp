@@ -1,15 +1,13 @@
 #include "ADSB_ILI9488.h"
 
-Display::Display() {
-  createWarning();
-}
+Display::Display() {}
 
-void Display::createWarning() {
+void Display::init() {
   begin();
   setRotation(-1);
 }
 
-void Display::drawWarning() {
+void Display::showWarning() {
   fillScreen(TFT_BLACK);
 
   setTextDatum(TC_DATUM);  // centers upcoming text around the middle of the screen
@@ -17,7 +15,7 @@ void Display::drawWarning() {
   setTextColor(TFT_RED);
 
   auto fontheight = fontHeight(GFXFF);
-  drawString("TEST", TFT_X_CENTER, TFT_Y_CENTER - 2 * fontheight, GFXFF);
+  drawString("WARNING", TFT_X_CENTER, TFT_Y_CENTER - 2 * fontheight, GFXFF);
 
   setTextSize(2);
   setTextColor(TFT_WHITE);

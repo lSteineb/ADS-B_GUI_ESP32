@@ -7,18 +7,16 @@
 #include <SPI.h>
 #include <string>
 
-#define TFT_X_CENTER 480 / 2
-#define TFT_Y_CENTER 320 / 2
+#define TFT_X_CENTER 240
+#define TFT_Y_CENTER 160
 #define GFXFF 1
 
 class Display : public TFT_eSPI{
-private:
-  //TFT_eSPI tft;
 public:
   Display();
 
-  void createWarning();
-  void drawWarning();
+  void init();
+  void showWarning();
 };
 
 #endif

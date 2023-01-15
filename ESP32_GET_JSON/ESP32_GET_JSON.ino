@@ -4,6 +4,8 @@
 #include <Arduino.h>
 #include "credentials.h"
 #include "ADSB_ILI9488.h"
+#include "ADSB_UI.h"
+
 
 const char* ssid = WIFI_SSID;
 const char* password = WIFI_PASSWD;
@@ -15,29 +17,34 @@ const char* serverName = "http://192.168.178.70/dump1090/data/aircraft.json";
 // milliseconds, will quickly become a bigger number than can be stored in an int.
 unsigned long lastTime = 0;
 // Set timer to 5 seconds (5000)
-unsigned long timerDelay = 60000;
+unsigned long timerDelay = 5000;
 
 String readings;
 float readingsArr[3];
-Display d;
+Display display;
 
 void setup() {
-  d.drawWarning();
+  display.init();
+  display.showWarning();
+  display.setTextSize(2);
 
   Serial.begin(115200);
 
   WiFi.begin(ssid, password);
-  d.print("Connecting");
+  display.print("Connecting");
   while (WiFi.status() != WL_CONNECTED) {
     delay(500);
-    d.print(".");
+    display.print(".");
   }
-  d.println(" ");
-  d.print("Connected to WiFi network with IP Address: ");
-  d.println(WiFi.localIP());
-  d.println(" ");
-  d.println("Timer set to 60s, it will take 60 seconds before publishing the first reading.");
-  d.println(" ");
+  display.println(" \n");
+  display.print("Connected to WiFi network with IP Address: ");
+  display.println(WiFi.localIP());
+  display.println(" ");
+  display.println("It will take 5 seconds before publishing the first reading.");
+  display.println(" ");
+
+  delay(3000);
+  drawBaseUI(display);
 }
 
 void loop() {
@@ -53,7 +60,7 @@ void loop() {
       Serial.println("");
 
       readings = httpGETRequest(serverName);
-      Serial.println(readings);
+      //Serial.println(readings);
       JSONVar myObject = JSON.parse(readings);
 
       // JSON.typeof(jsonVar) can be used to get the type of the var
@@ -75,6 +82,27 @@ void loop() {
         Serial.println(value);
         readingsArr[i] = double(value);
       }
+
+      JSONVar planes = myObject[keys[2]];
+      double lat;
+      double lon;
+      
+      for (int i = 0; i < 10; ++i) {
+        lat = double(planes[i]["lat"]);
+        lon = double(planes[i]["lon"]);
+
+
+        if (!isnan(lat) && !isnan(lon)) {
+          float x, y;
+          std::pair<float, float> tmp = getXY(lat, lon);
+          x = tmp.first;
+          y = tmp.second;
+
+          display.drawCircle(x, y, 6, TFT_GREEN);
+        }
+      }
+
+
     } else {
       Serial.println("WiFi Disconnected");
     }
