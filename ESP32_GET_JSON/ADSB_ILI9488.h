@@ -1,5 +1,5 @@
-#ifndef Warning
-#define Warning
+#ifndef _DISPLAY_
+#define _DISPLAY_
 
 #include <Arduino.h>
 #include <Arduino_GFX_Library.h>
@@ -11,12 +11,20 @@
 #define TFT_Y_CENTER 160
 #define GFXFF 1
 
-class Display : public TFT_eSPI{
+class Display : public TFT_eSPI {
 public:
   Display();
 
   void init();
   void showWarning();
+
+  void eraseText(int, uint16_t, uint16_t, uint16_t);
+  void eraseText(const char*, uint16_t, uint16_t, uint16_t);
+
+  void drawRhomb(int16_t, int16_t, int16_t, uint16_t);
+
+  void getTextBounds(const char *str, int16_t x, int16_t y, int16_t *x1, int16_t *y1, uint16_t *w, uint16_t *h);
+  void charBounds(char c, int16_t *x, int16_t *y,	int16_t *minx, int16_t *miny, int16_t *maxx, int16_t *maxy);
 };
 
 #endif
