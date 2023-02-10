@@ -1,4 +1,6 @@
-#include "ADSB_ILI9488.h"
+#include "ILI9488.h"
+
+Display tft;
 
 // Constructor
 Display::Display() {}

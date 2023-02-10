@@ -1,16 +1,23 @@
+#include <sys/stat.h>
 #ifndef _GUI_
 #define _GUI_
+
 #include <cmath>
 #include <string>
-#include "ADSB_Aircraft.h"
-#include "ADSB_UI_Types.h"
+#include "Aircraft.h"
+#include "UI_Types.h"
 
 #define EARTH_RAD_KM 6371
 #define EARTH_RAD_NM 3440
-#define RANGE 50
+#define RANGE 25
+
+// Current location = Düsseldorf
+location_t myloc{ 0, 51.192560, 6.808518 };
+program_states_t states;
 
 // draws the Base UI
 void drawBaseUI(Display tft) {
+  states.currentRange = 25;
   tft.fillScreen(TFT_BLUE);
 
   // Top Black Bar
@@ -62,23 +69,7 @@ void drawBaseUI(Display tft) {
 }
 
 
-// Calculate cartesian X,Y from LAT & LON
-std::pair<float, float> getXY(float lat, float lon) {
-  std::pair<float, float> result;
-  float xF, yF, dF;
 
-  xF = ((radians(lon) - radians(myloc.lon)) * cos((radians(myloc.lat) + radians(lat)) / 2)) * EARTH_RAD_NM;
-  yF = (radians(lat) - radians(myloc.lat)) * EARTH_RAD_NM;
-  dF = sqrt(xF * xF + yF * yF);
-
-  /* Round and scale to selected range */
-  result.first = TFT_X_CENTER + round(xF * TFT_Y_CENTER / RANGE);
-  result.second = TFT_Y_CENTER - round(yF * TFT_Y_CENTER / RANGE);
-
-  float posDistance = round(dF * TFT_Y_CENTER / RANGE);
-
-  return result;
-}
 
 
 #endif

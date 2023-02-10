@@ -2,9 +2,9 @@
 #define _UI_TYPES_
 
 #include <unordered_map>
-#include "ADSB_ILI9488.h"
-//#include "ADSB_STMPE610.h"
-//#include "ADSB_Font.h"
+#include "ILI9488.h"
+//#include "STMPE610.h"
+//#include "Font.h"
 
 /*
 // LCD 16 BIT COLORS --------------------------------------------------
@@ -35,6 +35,24 @@ static inline uint16_t RGB(uint8_t R, uint8_t G, uint8_t B) {
 //#####################################################################1
 // UI COLOR DEFINITIONS
 //#####################################################################
+#define BLACK 0x0000
+#define WHITE 0xFFFF
+#define BLUE 0x001F
+#define RED 0xF800
+#define GREEN 0x07E0
+#define GREEN2 0x0523
+#define CYAN 0x07FF
+#define MAGENTA 0xF81F
+#define YELLOW 0xFFE0
+#define YELLOW2 0xFEA0
+#define YELLOW3 0xCEA0
+#define YELLOW4 0xFEE0
+#define GREY 0x8410
+#define DGREY 0x528A
+#define DGREY2 0x2104
+#define SKYBLUE 0x041F
+#define GNDBROWN 0x8208
+
 #define UI_BACKGROUND_COLOR RGB(60, 60, 60)
 #define UI_TOP_BAR_COLOR RGB(0, 0, 0)
 #define UI_TOP_BAR_DIV_LINE_COLOR RGB(150, 150, 150)
@@ -47,7 +65,7 @@ static inline uint16_t RGB(uint8_t R, uint8_t G, uint8_t B) {
 #define UI_INNER_CIRCLE_DEG 15
 
 // SYSTEM  -----------------------------------------------------------
-#define SYSTEM_NAME "ADSB-ETD600"
+#define SYSTEM_NAME "ADSB-Radar"
 #define ADSB_VER "v0.1"
 #define ADSB_BUILD_NUM "000000"
 
@@ -130,9 +148,6 @@ struct program_states_t {
   bool debugTouchInput = false;
 };
 
-struct settings_t {
-};
-
 struct location_t {
   int alt;
   float lat, lon;
@@ -163,9 +178,6 @@ struct mydata_t {
   vector_t vector{ 0, 0, 0 };
   location_t location{ 0, 0.00, 0.00 };
 };
-
-// Current location = Düsseldorf
-location_t myloc{ 0, 51.192560, 6.808518 };
 
 inline bool operator==(const point_t &ts, const screenRegion_t &reg) {
   return ts.x > reg.xL && ts.x < reg.xR && ts.y > reg.yT && ts.y < reg.yB;
