@@ -70,7 +70,7 @@ void Display::getTextBounds(const char *str, int16_t x, int16_t y, int16_t *x1, 
 	*w = *h = 0;
 
 
-	int16_t minx = TFT_HEIGHT, miny = TFT_HEIGHT, maxx = -1, maxy = -1;
+	int16_t minx = WIDTH, miny = WIDTH, maxx = -1, maxy = -1;
 
 	while ((c = *str++))
 		charBounds(c, &x, &y, &minx, &miny, &maxx, &maxy);

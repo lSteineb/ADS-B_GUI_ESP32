@@ -159,8 +159,8 @@ void loop() {
         // ########################################################################################
         if (aircraft.containsKey("lat") && aircraft.containsKey("lon")) {
           location_t l = { int(aircraft["altitude"]), float(aircraft["lat"]), float(aircraft["lon"]) };
-          Aircraft currentAircraft(l);
-          planes.push_back(currentAircraft);
+          //Aircraft currentAircraft(l);
+          //planes.push_back(currentAircraft);
           /*
           if (!isnan(lat) && !isnan(lon)) {
             float x, y;
@@ -174,7 +174,7 @@ void loop() {
           */
         }
       }
-      
+
 
     } else {
       Serial.println("WiFi Disconnected");

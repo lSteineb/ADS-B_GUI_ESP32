@@ -3,8 +3,8 @@
 //#######################################################################
 // GLOBALS
 //#######################################################################
-#define TFT_DRAWABLE ( TFT_WIDTH / 2 ) - AIRCRAFT_SIZE
-#define TFT_LBL_DRAWABLE ( TFT_WIDTH / 2 ) - ( AIRCRAFT_SIZE + 15 )
+#define TFT_DRAWABLE ( TFT_Y_CENTER ) - AIRCRAFT_SIZE
+#define TFT_LBL_DRAWABLE ( TFT_Y_CENTER ) - ( AIRCRAFT_SIZE + 15 )
 
 extern Display tft;
 extern program_states_t states;
@@ -215,6 +215,9 @@ void Aircraft::getXY() {
   pos.y = TFT_Y_CENTER - round(yF * (tft.height() / 2) / states.currentRange);
 
   posDistance = round(dF * (TFT_Y_CENTER) / states.currentRange);
+  Serial.println(posDistance);
+  Serial.println(posDistance < TFT_DRAWABLE);
+  Serial.println();
 }
 
 // Gets current aircraft vector

@@ -1,9 +1,9 @@
-#include <sys/stat.h>
 #ifndef _GUI_
 #define _GUI_
 
 #include <cmath>
 #include <string>
+#include <sys/stat.h>
 #include "Aircraft.h"
 #include "UI_Types.h"
 
@@ -21,8 +21,8 @@ void drawBaseUI(Display tft) {
   tft.fillScreen(TFT_BLUE);
 
   // Top Black Bar
-  tft.fillRect(0, 0, TFT_HEIGHT, 30, TFT_DARKGREY);
-  tft.drawFastHLine(0, 30, TFT_HEIGHT, TFT_WHITE);
+  tft.fillRect(0, 0, WIDTH, 30, TFT_DARKGREY);
+  tft.drawFastHLine(0, 30, WIDTH, TFT_WHITE);
 
   // Top bar text
   tft.setTextSize(2);
@@ -36,14 +36,14 @@ void drawBaseUI(Display tft) {
   tft.setTextColor(TFT_WHITE);
 
   // Draw radarcircle
-  tft.drawCircle(tft.width() / 2, tft.height() / 2, tft.height() / 2 - 1, TFT_BLACK);
-  tft.fillCircle(tft.width() / 2, tft.height() / 2, tft.height() / 2 - 1, TFT_BLACK);
+  tft.drawCircle( TFT_X_CENTER, TFT_Y_CENTER, TFT_Y_CENTER - 1, TFT_BLACK);
+  tft.fillCircle(TFT_X_CENTER, TFT_Y_CENTER, TFT_Y_CENTER - 1, TFT_BLACK);
   // Draw current position
-  tft.drawCircle(tft.width() / 2, tft.height() / 2, 3, TFT_RED);
+  tft.drawCircle(TFT_X_CENTER, TFT_Y_CENTER, 3, TFT_RED);
 
   // Inner Circle Params
   int degMark = 15;
-  int ri = TFT_WIDTH / 4;
+  int ri = HEIGHT / 4;
   // Draw inner circle
   for (int i = 0; i < 360; i += degMark) {
     float a = radians(i);
@@ -54,9 +54,9 @@ void drawBaseUI(Display tft) {
   int offset = 12;
   tft.setTextSize(2);
   tft.setTextColor(WHITE);
-  tft.setCursor(tft.width() - tft.width() / 3 + 18 + offset, tft.height() - tft.height() / 10);
+  tft.setCursor(WIDTH - WIDTH / 3 + 18 + offset, HEIGHT - HEIGHT / 10);
   tft.print(RANGE);
-  tft.setCursor(tft.width() - tft.width() / 3 + 58, tft.height() - tft.height() / 10);
+  tft.setCursor(WIDTH - WIDTH / 3 + 58, HEIGHT - HEIGHT / 10);
   tft.print("Nm");
 
   // TODO: Implement aircrafts

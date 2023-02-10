@@ -6,7 +6,7 @@
 //#include "STMPE610.h"
 //#include "Font.h"
 
-/*
+
 // LCD 16 BIT COLORS --------------------------------------------------
 #define BLACK 0x0000
 #define WHITE 0xFFFF
@@ -25,8 +25,8 @@
 #define DGREY2 0x2104
 #define SKYBLUE 0x041F
 #define GNDBROWN 0x8208
-#define ORANGE 0xFC42
-*/
+//#define ORANGE 0xFC42
+
 // RGB to 565 coversion
 static inline uint16_t RGB(uint8_t R, uint8_t G, uint8_t B) {
   return ((R & 0xF8) << 8) | ((G & 0xFC) << 3) | (B >> 3);
@@ -35,24 +35,6 @@ static inline uint16_t RGB(uint8_t R, uint8_t G, uint8_t B) {
 //#####################################################################1
 // UI COLOR DEFINITIONS
 //#####################################################################
-#define BLACK 0x0000
-#define WHITE 0xFFFF
-#define BLUE 0x001F
-#define RED 0xF800
-#define GREEN 0x07E0
-#define GREEN2 0x0523
-#define CYAN 0x07FF
-#define MAGENTA 0xF81F
-#define YELLOW 0xFFE0
-#define YELLOW2 0xFEA0
-#define YELLOW3 0xCEA0
-#define YELLOW4 0xFEE0
-#define GREY 0x8410
-#define DGREY 0x528A
-#define DGREY2 0x2104
-#define SKYBLUE 0x041F
-#define GNDBROWN 0x8208
-
 #define UI_BACKGROUND_COLOR RGB(60, 60, 60)
 #define UI_TOP_BAR_COLOR RGB(0, 0, 0)
 #define UI_TOP_BAR_DIV_LINE_COLOR RGB(150, 150, 150)
