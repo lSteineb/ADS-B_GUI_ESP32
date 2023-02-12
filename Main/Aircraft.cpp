@@ -3,8 +3,8 @@
 //#######################################################################
 // GLOBALS
 //#######################################################################
-#define TFT_DRAWABLE ( TFT_Y_CENTER ) - AIRCRAFT_SIZE
-#define TFT_LBL_DRAWABLE ( TFT_Y_CENTER ) - ( AIRCRAFT_SIZE + 15 )
+#define TFT_DRAWABLE (TFT_Y_CENTER) - AIRCRAFT_SIZE
+#define TFT_LBL_DRAWABLE (TFT_Y_CENTER) - (AIRCRAFT_SIZE + 15)
 
 extern Display tft;
 extern program_states_t states;
@@ -93,61 +93,58 @@ void Aircraft::draw() {
 
 // Erases aircraft from canvas
 void Aircraft::erase() {
-	// If location not set >> return
-	if(!locationSet || pos.x == 0 || pos.y == 0)
-		return;
-	
-	// If location set and outside drawing area >> return
-	if(locationSet && posDistance >= TFT_DRAWABLE)
-		return;
+  // If location not set >> return
+  if (!locationSet || pos.x == 0 || pos.y == 0)
+    return;
 
-	// Erase aircraft
-	tft.fillCircle(pos.x, pos.y, AIRCRAFT_SIZE, BLACK);	
+  // If location set and outside drawing area >> return
+  if (locationSet && posDistance >= TFT_DRAWABLE)
+    return;
 
-	// If vector set and outside drawing area >> return
-	if(vectorSet && vectDistance >= TFT_DRAWABLE)
-		return;
+  // Erase aircraft
+  tft.fillCircle(pos.x, pos.y, AIRCRAFT_SIZE, BLACK);
 
-	// Erase vector	
-	if(vectorSet) tft.drawLine(pos.x, pos.y, vec.x, vec.y, BLACK);
+  // If vector set and outside drawing area >> return
+  if (vectorSet && vectDistance >= TFT_DRAWABLE)
+    return;
 
-	/* Erase Altitude Label */
-	if(posDistance <= TFT_LBL_DRAWABLE) {		
-		tft.setTextSize(1); tft.setTextColor(BLACK);
-		if(vectorSet) {	
+  // Erase vector
+  if (vectorSet) tft.drawLine(pos.x, pos.y, vec.x, vec.y, BLACK);
 
-			if(vector.vrate >= 100) {				
-				tft.fillCircle(pos.x + 12, pos.y, 2, BLACK);
-				tft.setCursor(pos.x + 5, pos.y + 5);
-				tft.print(lbl);
-			}
-			else if(vector.vrate <= -100) {				
-				tft.fillCircle(pos.x + 12, pos.y, 2, BLACK);
-				tft.setCursor(pos.x + 5, pos.y + 5);
-				tft.print(lbl);
-			}
-			else {
-				tft.setCursor(pos.x + 5, pos.y + 5);
-				tft.print(lbl);
-			}
-		}
-		else {			
-			tft.setCursor(pos.x + 5, pos.y + 5);
-			tft.print(lbl);
-		}
+  /* Erase Altitude Label */
+  if (posDistance <= TFT_LBL_DRAWABLE) {
+    tft.setTextSize(1);
+    tft.setTextColor(BLACK);
+    if (vectorSet) {
 
-	}
+      if (vector.vrate >= 100) {
+        tft.fillCircle(pos.x + 12, pos.y, 2, BLACK);
+        tft.setCursor(pos.x + 5, pos.y + 5);
+        tft.print(lbl);
+      } else if (vector.vrate <= -100) {
+        tft.fillCircle(pos.x + 12, pos.y, 2, BLACK);
+        tft.setCursor(pos.x + 5, pos.y + 5);
+        tft.print(lbl);
+      } else {
+        tft.setCursor(pos.x + 5, pos.y + 5);
+        tft.print(lbl);
+      }
+    } else {
+      tft.setCursor(pos.x + 5, pos.y + 5);
+      tft.print(lbl);
+    }
+  }
 }
 
 // Updates aircraft position on screen by removing and redrawing it
-void Aircraft::update() {	
-	if(locationSet) {
-		erase();
-		getXY();
-	}
+void Aircraft::update() {
+  if (locationSet) {
+    erase();
+    getXY();
+  }
 
-	if(vectorSet) getVectorXY();
-	if(locationSet) draw();
+  if (vectorSet) getVectorXY();
+  if (locationSet) draw();
 }
 #pragma endregion Functions
 
@@ -160,38 +157,38 @@ void Aircraft::update() {
 #pragma region Setter
 // Sets aircraft location
 void Aircraft::setLocation(location_t newLocation) {
-	
-	lastSeen = seconds();	
-	
-	if(newLocation != location ) {
-		
-		if(locationSet) erase();
-		else locationSet = true;
 
-		location = newLocation;
+  lastSeen = seconds();
 
-		getXY();		
-		if(vectorSet) getVectorXY();
-		draw();
-	}
+  if (newLocation != location) {
+
+    if (locationSet) erase();
+    else locationSet = true;
+
+    location = newLocation;
+
+    getXY();
+    if (vectorSet) getVectorXY();
+    draw();
+  }
 }
 
 // Sets aircraft vector
 void Aircraft::setVector(vector_t newVector) {
 
-	lastSeen = seconds();	
-	
-	if(newVector != vector ) {		
-		
-		if(locationSet) erase();
-		vectorSet = true;
+  lastSeen = seconds();
 
-		vector = newVector;
+  if (newVector != vector) {
 
-		getVectorXY();
-		
-		if(locationSet) draw();
-	}
+    if (locationSet) erase();
+    vectorSet = true;
+
+    vector = newVector;
+
+    getVectorXY();
+
+    if (locationSet) draw();
+  }
 }
 #pragma endregion Setter
 
@@ -215,39 +212,36 @@ void Aircraft::getXY() {
   pos.y = TFT_Y_CENTER - round(yF * (tft.height() / 2) / states.currentRange);
 
   posDistance = round(dF * (TFT_Y_CENTER) / states.currentRange);
-  Serial.println(posDistance);
-  Serial.println(posDistance < TFT_DRAWABLE);
-  Serial.println();
 }
 
 // Gets current aircraft vector
 void Aircraft::getVectorXY() {
 
-	uint8_t vectorLength = vector.speed / VECTOR_SIZE;
-    
-	float vectorX = ( cos( radians( vector.heading - 90 ) ) * vectorLength ) + pos.x;
-	float vectorY = ( sin( radians( vector.heading - 90 ) ) * vectorLength ) + pos.y;
+  uint8_t vectorLength = vector.speed / VECTOR_SIZE;
 
-	vec.x = round( vectorX );
-	vec.y = round( vectorY );
+  float vectorX = (cos(radians(vector.heading - 90)) * vectorLength) + pos.x;
+  float vectorY = (sin(radians(vector.heading - 90)) * vectorLength) + pos.y;
 
-	float vdist = sqrt( pow(vec.x - TFT_X_CENTER, 2) + pow(vec.y - TFT_Y_CENTER, 2) );
-	vectDistance = round(vdist);
+  vec.x = round(vectorX);
+  vec.y = round(vectorY);
+
+  float vdist = sqrt(pow(vec.x - TFT_X_CENTER, 2) + pow(vec.y - TFT_Y_CENTER, 2));
+  vectDistance = round(vdist);
 }
 
 // Gets the time when the aircraft was last seen
 uint16_t Aircraft::getLastSeen(void) {
-	return lastSeen;
+  return lastSeen;
 }
 
 // Gets the Vector of the aircraft
 vector_t Aircraft::getVector(void) {
-	return vector;
+  return vector;
 }
 
 // Gets the location of the aircraft
 location_t Aircraft::getLocation(void) {
-	return location;
+  return location;
 }
 
 #pragma endregion Getter

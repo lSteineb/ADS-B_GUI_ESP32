@@ -41,7 +41,6 @@ private:
 
   void getVectorXY();
   void getXY();
-
 };
 
 #endif
