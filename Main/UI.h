@@ -15,8 +15,22 @@
 location_t myloc{ 0, 51.192560, 6.808518 };
 program_states_t states;
 
+std::unordered_map<uint8_t, ADESP_UI_Button> buttons;
+
 // draws the Base UI
 void drawBaseUI(Display tft) {
+  addButton(3, ADESP_UI_Button("+", 410, 40, 60, 120));
+  buttons[3].setType(MOMENTARY);
+  buttons[3].setFillColor(UI_BUTTON_FILL_COLOR);
+  buttons[3].setLabelTextSize(3);
+  buttons[3].assignUI(TRAFFIC_UI);
+
+  addButton(4, ADESP_UI_Button("-", 410, 190, 60, 120));
+  buttons[4].setType(MOMENTARY);
+  buttons[4].setFillColor(UI_BUTTON_FILL_COLOR);
+  buttons[4].setLabelTextSize(3);
+  buttons[4].assignUI(TRAFFIC_UI);
+
   states.currentRange = 25;
   tft.fillScreen(TFT_BLUE);
 
@@ -36,7 +50,7 @@ void drawBaseUI(Display tft) {
   tft.setTextColor(TFT_WHITE);
 
   // Draw radarcircle
-  tft.drawCircle( TFT_X_CENTER, TFT_Y_CENTER, TFT_Y_CENTER - 1, TFT_BLACK);
+  tft.drawCircle(TFT_X_CENTER, TFT_Y_CENTER, TFT_Y_CENTER - 1, TFT_BLACK);
   tft.fillCircle(TFT_X_CENTER, TFT_Y_CENTER, TFT_Y_CENTER - 1, TFT_BLACK);
   // Draw current position
   tft.drawCircle(TFT_X_CENTER, TFT_Y_CENTER, 3, TFT_RED);
