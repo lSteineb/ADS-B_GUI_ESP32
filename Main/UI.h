@@ -15,12 +15,14 @@
 //location_t myloc{ 0, 51.192560, 6.808518 };
 program_states_t states;
 
+extern mydata_t my;
 // Current location = Köln
 location_t myloc { 0, 50.934449, 6.988244 };
 //std::unordered_map<uint8_t, ADESP_UI_Button> buttons;
 
 // draws the Base UI
 void drawBaseUI(Display tft) {
+  my.location = myloc;
 /*
   addButton(3, ADESP_UI_Button("+", 410, 40, 60, 120));
   buttons[3].setType(MOMENTARY);
@@ -85,7 +87,23 @@ void drawBaseUI(Display tft) {
   */
 }
 
+/* Calculate cartesian X,Y from LAT & LON */
+std::pair<float, float> calcXY(float lat, float lon) {
+  std::pair<float, float> result;
+  float xF, yF, dF;
 
+  xF = ((radians(lon) - radians(my.location.lon)) * cos((radians(my.location.lat) + radians(lat)) / 2)) * EARTH_RAD_NM;
+  yF = (radians(lat) - radians(my.location.lat)) * EARTH_RAD_NM;
+  dF = sqrt(xF * xF + yF * yF);
+
+  /* Round and scale to selected range */
+  result.first = TFT_X_CENTER + round(xF * TFT_Y_CENTER / 50);
+  result.second = TFT_Y_CENTER - round(yF * TFT_Y_CENTER / 50);
+
+  float posDistance = round(dF * TFT_Y_CENTER / 50);
+
+  return result;
+}
 
 
 

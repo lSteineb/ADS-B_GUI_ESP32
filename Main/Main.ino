@@ -103,13 +103,33 @@ void loop() {
   if ((millis() - lastTime) > timerDelay) {
     //Check WiFi connection status
     if (WiFi.status() == WL_CONNECTED) {
-      httpGETRequest(serverName);
+      if (!doc.isNull()) {
+        JsonArray aircrafts = doc["aircraft"];
+        for (auto aircraft : aircrafts) {
+          float lat = float(aircraft["lat"]);
+          float lon = float(aircraft["lon"]);
+
+
+          std::pair<float, float> tmp = calcXY(lat, lon);
+
+          float x, y;
+          x = tmp.first;
+          y = tmp.second;
+
+          display.drawRhomb(x, y, 6, BLACK);
+          display.setCursor(x + 5, y + 5);
+          display.setTextColor(BLACK);
+          display.setTextSize(1);
+          display.print((int)round((int)aircraft["altitude"] / 100));
+        }
+      }
 
       doc.clear();
+      httpGETRequest(serverName);
+
       JsonArray aircrafts = doc["aircraft"];
-      drawBaseUI(display);
       // Looping through every aircraft in JSON object
-      for (auto &aircraft : aircrafts) {
+      for (auto aircraft : aircrafts) {
         // Get Aircraft ICAO Hex Address
         try {
           int icao_hex = aircraft["hex"].as<unsigned int>();
@@ -124,7 +144,6 @@ void loop() {
         if (aircraft.containsKey("seen_pos") && (aircraft["seen_pos"].as<unsigned int>() < 10)) {
           // Get Altitude, 0 if aircraft in ground
           ;
-
         }
 
         // ########################################################################################
@@ -132,7 +151,6 @@ void loop() {
         // ########################################################################################
         if (aircraft.containsKey("vert_rate") && aircraft.containsKey("track")) {
           ;
-
         }
 
 
@@ -147,19 +165,7 @@ void loop() {
           float lon = float(aircraft["lon"]);
 
 
-          std::pair<float, float> tmp;
-          float xF, yF, dF;
-
-          xF = ((radians(lon) - radians(my.location.lon)) * cos((radians(my.location.lat) + radians(lat)) / 2)) * EARTH_RAD_NM;
-          yF = (radians(lat) - radians(my.location.lat)) * EARTH_RAD_NM;
-          dF = sqrt(xF * xF + yF * yF);
-
-          /* Round and scale to selected range */
-          tmp.first = TFT_X_CENTER + round(xF * TFT_Y_CENTER / 50);
-          tmp.second = TFT_Y_CENTER - round(yF * TFT_Y_CENTER / 50);
-
-          float posDistance = round(dF * TFT_Y_CENTER / 50);
-
+          std::pair<float, float> tmp = calcXY(lat, lon);
 
           if (!isnan(lat) && !isnan(lon)) {
             float x, y;
@@ -177,7 +183,6 @@ void loop() {
           }
         }
       }
-      //drawBaseUI(display);
 
     } else {
       Serial.println("WiFi Disconnected");
@@ -191,23 +196,7 @@ float distance(int x1, int y1, int x2, int y2) {
   return sqrt(pow(x2 - x1, 2) + pow(y2 - y1, 2) * 1.0);
 }
 
-/* Calculate cartesian X,Y from LAT & LON */
-std::pair<float, float> calcXY(float lat, float lon) {
-  std::pair<float, float> result;
-  float xF, yF, dF;
 
-  xF = ((radians(lon) - radians(my.location.lon)) * cos((radians(my.location.lat) + radians(lat)) / 2)) * EARTH_RAD_NM;
-  yF = (radians(lat) - radians(my.location.lat)) * EARTH_RAD_NM;
-  dF = sqrt(xF * xF + yF * yF);
-
-  /* Round and scale to selected range */
-  result.first = TFT_X_CENTER + round(xF * TFT_Y_CENTER / 50);
-  result.second = TFT_Y_CENTER - round(yF * TFT_Y_CENTER / 50);
-
-  float posDistance = round(dF * TFT_Y_CENTER / 50);
-
-  return result;
-}
 
 
 void httpGETRequest(const char* serverName) {
