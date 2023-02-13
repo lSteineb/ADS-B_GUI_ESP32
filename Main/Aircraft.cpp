@@ -1,10 +1,12 @@
+#include <cmath>
+#include "HardwareSerial.h"
 #include "Aircraft.h"
 
 //#######################################################################
 // GLOBALS
 //#######################################################################
-#define TFT_DRAWABLE (TFT_Y_CENTER) - AIRCRAFT_SIZE
-#define TFT_LBL_DRAWABLE (TFT_Y_CENTER) - (AIRCRAFT_SIZE + 15)
+#define TFT_DRAWABLE (HEIGHT / 2) - AIRCRAFT_SIZE
+#define TFT_LBL_DRAWABLE (HEIGHT / 2) - (AIRCRAFT_SIZE + 15)
 
 extern Display tft;
 extern program_states_t states;
@@ -26,7 +28,11 @@ Aircraft::Aircraft(location_t _location) {
   locationSet = true;
 
   getXY();
-  draw();
+  //draw();
+  tft.drawRhomb(pos.x, pos.y, AIRCRAFT_SIZE, WHITE);
+  tft.setCursor(pos.x + 5, pos.y + 5);
+  tft.setTextColor(WHITE);
+  tft.print((int)round((float)location.alt / 100));
 }
 
 #pragma endregion Constructors
@@ -49,12 +55,13 @@ void Aircraft::draw() {
     return;
 
   // Draw aircraft by type
-  if (type == ADSB) tft.drawRhomb(pos.x, pos.y, AIRCRAFT_SIZE, WHITE);
+  tft.drawRhomb(pos.x, pos.y, AIRCRAFT_SIZE, WHITE);
+  /*if (type == ADSB) tft.drawRhomb(pos.x, pos.y, AIRCRAFT_SIZE, WHITE);
   else if (type == MLAT) tft.drawCircle(pos.x, pos.y, AIRCRAFT_SIZE - 1, WHITE);
   else if (type == TISB) tft.fillRect(pos.x - AIRCRAFT_SIZE / 2, pos.y - AIRCRAFT_SIZE / 2, AIRCRAFT_SIZE, AIRCRAFT_SIZE, GREY);
   else
     ;  // pass
-
+*/
   // If vector outside of drawing area >> return
   if (vectDistance >= TFT_DRAWABLE)
     return;
@@ -208,10 +215,10 @@ void Aircraft::getXY() {
   dF = sqrt(xF * xF + yF * yF);
 
   /* Round and scale to selected range */
-  pos.x = TFT_X_CENTER + round(xF * (tft.height() / 2) / states.currentRange);
-  pos.y = TFT_Y_CENTER - round(yF * (tft.height() / 2) / states.currentRange);
+  pos.x = TFT_X_CENTER + round(xF * (HEIGHT / 2) / 25);
+  pos.y = TFT_Y_CENTER - round(yF * (HEIGHT / 2) / 25);
 
-  posDistance = round(dF * (TFT_Y_CENTER) / states.currentRange);
+  posDistance = round(dF * (HEIGHT / 2) / 25);
 }
 
 // Gets current aircraft vector

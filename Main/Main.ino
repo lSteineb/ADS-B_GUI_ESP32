@@ -5,7 +5,7 @@
 #include <string>
 #include <exception>
 #include <vector>
-#include "credentials.h"
+#include "Credentials.h"
 #include "ILI9488.h"
 #include "Aircraft.h"
 #include "UI.h"
@@ -18,7 +18,8 @@ const char* ssid = WIFI_SSID;
 const char* password = WIFI_PASSWD;
 
 // IP address of raspberry pi with dump1090 image
-const char* serverName = "http://192.168.178.70/dump1090/data/aircraft.json";
+//const char* serverName = "http://192.168.178.70/dump1090/data/aircraft.json";
+const char* serverName = "http://192.168.43.15/dump1090/data/aircraft.json";
 
 // The following variables are unsigned longs because the time, measured in
 // milliseconds, will quickly become a bigger number than can be stored in an int.
@@ -104,10 +105,11 @@ void loop() {
     if (WiFi.status() == WL_CONNECTED) {
       httpGETRequest(serverName);
 
+      doc.clear();
       JsonArray aircrafts = doc["aircraft"];
-
+      drawBaseUI(display);
       // Looping through every aircraft in JSON object
-      for (auto aircraft : aircrafts) {
+      for (auto &aircraft : aircrafts) {
         // Get Aircraft ICAO Hex Address
         try {
           int icao_hex = aircraft["hex"].as<unsigned int>();
@@ -122,18 +124,7 @@ void loop() {
         if (aircraft.containsKey("seen_pos") && (aircraft["seen_pos"].as<unsigned int>() < 10)) {
           // Get Altitude, 0 if aircraft in ground
           ;
-          /*
-            // Put location data into queue
-            outQ.put( ['L',
-                      icao_hex,
-                      aircraft['alt'],
-                      aircraft['lat'],
-                      aircraft['lon'],
-                      aircraft['seen_pos']
-                      ]                      
-                    );
 
-            */
         }
 
         // ########################################################################################
@@ -141,16 +132,7 @@ void loop() {
         // ########################################################################################
         if (aircraft.containsKey("vert_rate") && aircraft.containsKey("track")) {
           ;
-          /*
-            outQ.put( ['V',
-                       icao_hex,
-                       aircraft['gs'],
-                       aircraft['track'],
-                       0,
-                       aircraft['seen']
-                      ]                      
-                     )
-            */
+
         }
 
 
@@ -161,28 +143,72 @@ void loop() {
           location_t l = { int(aircraft["altitude"]), float(aircraft["lat"]), float(aircraft["lon"]) };
           //Aircraft currentAircraft(l);
           //planes.push_back(currentAircraft);
-          /*
+          float lat = float(aircraft["lat"]);
+          float lon = float(aircraft["lon"]);
+
+
+          std::pair<float, float> tmp;
+          float xF, yF, dF;
+
+          xF = ((radians(lon) - radians(my.location.lon)) * cos((radians(my.location.lat) + radians(lat)) / 2)) * EARTH_RAD_NM;
+          yF = (radians(lat) - radians(my.location.lat)) * EARTH_RAD_NM;
+          dF = sqrt(xF * xF + yF * yF);
+
+          /* Round and scale to selected range */
+          tmp.first = TFT_X_CENTER + round(xF * TFT_Y_CENTER / 50);
+          tmp.second = TFT_Y_CENTER - round(yF * TFT_Y_CENTER / 50);
+
+          float posDistance = round(dF * TFT_Y_CENTER / 50);
+
+
           if (!isnan(lat) && !isnan(lon)) {
             float x, y;
-            std::pair<float, float> tmp = getXY(lat, lon);
             x = tmp.first;
             y = tmp.second;
-            double posDistance = round(dF * (TFT_WIDTH/2) / 25);
-            if(posDistance < TFT_DRAWABLE)
-            display.drawCircle(x, y, 6, TFT_GREEN);
+            //double posDistance = round(dF * (HEIGHT/2) / 25);
+            //if(posDistance < TFT_DRAWABLE)
+            if (distance(x, y, TFT_X_CENTER, TFT_Y_CENTER < TFT_Y_CENTER)) {
+              display.drawRhomb(x, y, 6, WHITE);
+              display.setCursor(x + 5, y + 5);
+              display.setTextColor(WHITE);
+              display.setTextSize(1);
+              display.print((int)round((int)aircraft["altitude"] / 100));
+            }
           }
-          */
         }
       }
-
+      //drawBaseUI(display);
 
     } else {
       Serial.println("WiFi Disconnected");
     }
-    doc.clear();
     lastTime = millis();
   }
 }
+
+// Function to calculate distance
+float distance(int x1, int y1, int x2, int y2) {
+  return sqrt(pow(x2 - x1, 2) + pow(y2 - y1, 2) * 1.0);
+}
+
+/* Calculate cartesian X,Y from LAT & LON */
+std::pair<float, float> calcXY(float lat, float lon) {
+  std::pair<float, float> result;
+  float xF, yF, dF;
+
+  xF = ((radians(lon) - radians(my.location.lon)) * cos((radians(my.location.lat) + radians(lat)) / 2)) * EARTH_RAD_NM;
+  yF = (radians(lat) - radians(my.location.lat)) * EARTH_RAD_NM;
+  dF = sqrt(xF * xF + yF * yF);
+
+  /* Round and scale to selected range */
+  result.first = TFT_X_CENTER + round(xF * TFT_Y_CENTER / 50);
+  result.second = TFT_Y_CENTER - round(yF * TFT_Y_CENTER / 50);
+
+  float posDistance = round(dF * TFT_Y_CENTER / 50);
+
+  return result;
+}
+
 
 void httpGETRequest(const char* serverName) {
   http.useHTTP10(true);

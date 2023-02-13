@@ -35,3 +35,6 @@
 credentials.h
 ADESP-ETD600-master
 Flightradar
+Main/esp32.svd
+Main/debug_custom.json
+Main/debug.cfg

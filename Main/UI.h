@@ -9,16 +9,19 @@
 
 #define EARTH_RAD_KM 6371
 #define EARTH_RAD_NM 3440
-#define RANGE 25
+#define RANGE 50
 
 // Current location = Düsseldorf
-location_t myloc{ 0, 51.192560, 6.808518 };
+//location_t myloc{ 0, 51.192560, 6.808518 };
 program_states_t states;
 
-std::unordered_map<uint8_t, ADESP_UI_Button> buttons;
+// Current location = Köln
+location_t myloc { 0, 50.934449, 6.988244 };
+//std::unordered_map<uint8_t, ADESP_UI_Button> buttons;
 
 // draws the Base UI
 void drawBaseUI(Display tft) {
+/*
   addButton(3, ADESP_UI_Button("+", 410, 40, 60, 120));
   buttons[3].setType(MOMENTARY);
   buttons[3].setFillColor(UI_BUTTON_FILL_COLOR);
@@ -30,8 +33,8 @@ void drawBaseUI(Display tft) {
   buttons[4].setFillColor(UI_BUTTON_FILL_COLOR);
   buttons[4].setLabelTextSize(3);
   buttons[4].assignUI(TRAFFIC_UI);
-
-  states.currentRange = 25;
+*/
+  //states.currentRange = 25;
   tft.fillScreen(TFT_BLUE);
 
   // Top Black Bar
