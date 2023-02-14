@@ -25,10 +25,10 @@ const char* serverName = "http://192.168.43.15/dump1090/data/aircraft.json";
 // milliseconds, will quickly become a bigger number than can be stored in an int.
 unsigned long lastTime = 0;
 // Set timer to 5 seconds (5000)
-unsigned long timerDelay = 5000;
+unsigned long timerDelay = 1000;
 
 Display display;
-DynamicJsonDocument doc(24576);
+DynamicJsonDocument doc(49152);
 
 WiFiClient client;
 HTTPClient http;
@@ -115,12 +115,13 @@ void loop() {
           float x, y;
           x = tmp.first;
           y = tmp.second;
-
-          display.drawRhomb(x, y, 6, BLACK);
-          display.setCursor(x + 5, y + 5);
-          display.setTextColor(BLACK);
-          display.setTextSize(1);
-          display.print((int)round((int)aircraft["altitude"] / 100));
+          if (printable(x, y)) {
+            display.drawRhomb(x, y, 6, BLACK);
+            display.setCursor(x + 5, y + 5);
+            display.setTextColor(BLACK);
+            display.setTextSize(1);
+            display.print((int)round((int)aircraft["altitude"] / 100));
+          }
         }
       }
 
@@ -173,7 +174,7 @@ void loop() {
             y = tmp.second;
             //double posDistance = round(dF * (HEIGHT/2) / 25);
             //if(posDistance < TFT_DRAWABLE)
-            if (distance(x, y, TFT_X_CENTER, TFT_Y_CENTER < TFT_Y_CENTER)) {
+            if (printable(x, y)) {
               display.drawRhomb(x, y, 6, WHITE);
               display.setCursor(x + 5, y + 5);
               display.setTextColor(WHITE);
@@ -191,12 +192,10 @@ void loop() {
   }
 }
 
-// Function to calculate distance
-float distance(int x1, int y1, int x2, int y2) {
-  return sqrt(pow(x2 - x1, 2) + pow(y2 - y1, 2) * 1.0);
+
+bool printable(float& x, float& y) {
+  return (pow((x - TFT_X_CENTER), 2) + pow((y - TFT_Y_CENTER), 2) <= pow(TFT_Y_CENTER - AIRCRAFT_SIZE, 2));
 }
-
-
 
 
 void httpGETRequest(const char* serverName) {
