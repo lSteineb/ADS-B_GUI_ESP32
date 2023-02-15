@@ -5,6 +5,8 @@
 #include <string>
 #include <exception>
 #include <vector>
+#include <map>
+
 #include "Credentials.h"
 #include "ILI9488.h"
 #include "Aircraft.h"
@@ -25,7 +27,7 @@ const char* serverName = "http://192.168.43.15/dump1090/data/aircraft.json";
 // milliseconds, will quickly become a bigger number than can be stored in an int.
 unsigned long lastTime = 0;
 // Set timer to 5 seconds (5000)
-unsigned long timerDelay = 1000;
+unsigned long timerDelay = 5000;
 
 Display display;
 DynamicJsonDocument doc(49152);
@@ -33,10 +35,12 @@ DynamicJsonDocument doc(49152);
 WiFiClient client;
 HTTPClient http;
 
-std::vector<Aircraft> planes;
+JsonArray aircrafts;
+std::map<std::string, Aircraft> planes;
 
 mydata_t my;
 
+#pragma region Jsondata
 /* 
 ########################################################################################
 # JSON arguments explained
@@ -69,7 +73,7 @@ rssi      : recent average RSSI (signal power), in dbFS; this will always be neg
 -------------------------------------------------------------------------------------------------------------------------------------------------
 #################################################################################################################################################
 */
-
+#pragma endregion Jsondata
 
 //########################################################################################
 //# Functions
@@ -98,18 +102,23 @@ void setup() {
   drawBaseUI(display);
 }
 
+
 void loop() {
   //Send an HTTP GET request every 5 seconds
   if ((millis() - lastTime) > timerDelay) {
     //Check WiFi connection status
     if (WiFi.status() == WL_CONNECTED) {
+
+      Serial.println(planes.size());
+      Serial.println("-----------\n");
+      for (auto& p : planes) {
+        //p.second.erase();
+        p.second.update();
+      }
+      /*
       if (!doc.isNull()) {
-        JsonArray aircrafts = doc["aircraft"];
+        aircrafts = doc["aircraft"];
         for (auto aircraft : aircrafts) {
-          float lat = float(aircraft["lat"]);
-          float lon = float(aircraft["lon"]);
-
-
           std::pair<float, float> tmp = calcXY(lat, lon);
 
           float x, y;
@@ -125,47 +134,51 @@ void loop() {
         }
       }
 
+      */
+
+      // Clears the Json document and fetches new data
       doc.clear();
       httpGETRequest(serverName);
 
-      JsonArray aircrafts = doc["aircraft"];
+      aircrafts = doc["aircraft"];
+
       // Looping through every aircraft in JSON object
       for (auto aircraft : aircrafts) {
-        // Get Aircraft ICAO Hex Address
-        try {
-          int icao_hex = aircraft["hex"].as<unsigned int>();
-        } catch (...) {
-          Serial.println("Hex Parse failed");
-        }
-
-
-        // ########################################################################################
-        // # If a new Airplane has been captured
-        // ########################################################################################
-        if (aircraft.containsKey("seen_pos") && (aircraft["seen_pos"].as<unsigned int>() < 10)) {
-          // Get Altitude, 0 if aircraft in ground
-          ;
-        }
-
-        // ########################################################################################
-        // # If vector data available extract it
-        // ########################################################################################
-        if (aircraft.containsKey("vert_rate") && aircraft.containsKey("track")) {
-          ;
-        }
-
-
         // ########################################################################################
         // # If location data available extract it
         // ########################################################################################
         if (aircraft.containsKey("lat") && aircraft.containsKey("lon")) {
-          location_t l = { int(aircraft["altitude"]), float(aircraft["lat"]), float(aircraft["lon"]) };
-          //Aircraft currentAircraft(l);
-          //planes.push_back(currentAircraft);
-          float lat = float(aircraft["lat"]);
-          float lon = float(aircraft["lon"]);
+          // Airplane variables
+          std::string hex = aircraft["hex"].as<std::string>();
+          std::string flight = aircraft["flight"].as<std::string>();
+          float lat = aircraft["lat"].as<float>();
+          float lon = aircraft["lon"].as<float>();
+          float seen_pos = aircraft["seen_pos"].as<float>();
+          int altitude = aircraft["altitude"].as<int>();
+          int squawk = aircraft["squawk"].as<int>();
+          int vert_rate = aircraft["vert_rate"].as<int>();
+          unsigned int speed = aircraft["speed"].as<unsigned int>();
+          unsigned int track = aircraft["track"].as<unsigned int>();
+
+          location_t l = { altitude, lat, lon };
+          vector_t v = { speed, track, vert_rate };
+
+          if(planes.find(hex) == planes.end()) {
+            Aircraft a(l);
+            // Updates existing plane, or adds a new one
+            planes[hex] = a;
+          } else {
+            planes[hex].setLocation(l);
+            planes[hex].setVector(v);
+          }
+
+          //a.setVector(v);
 
 
+
+
+
+          /*
           std::pair<float, float> tmp = calcXY(lat, lon);
 
           if (!isnan(lat) && !isnan(lon)) {
@@ -182,8 +195,12 @@ void loop() {
               display.print((int)round((int)aircraft["altitude"] / 100));
             }
           }
+          */
         }
       }
+
+
+
 
     } else {
       Serial.println("WiFi Disconnected");
@@ -196,6 +213,11 @@ void loop() {
 bool printable(float& x, float& y) {
   return (pow((x - TFT_X_CENTER), 2) + pow((y - TFT_Y_CENTER), 2) <= pow(TFT_Y_CENTER - AIRCRAFT_SIZE, 2));
 }
+
+bool printableLbl(float& x, float& y) {
+  return (pow((x + 15 - TFT_X_CENTER), 2) + pow((y + 15 - TFT_Y_CENTER), 2) <= pow(TFT_Y_CENTER - (AIRCRAFT_SIZE + 15), 2));
+}
+
 
 
 void httpGETRequest(const char* serverName) {

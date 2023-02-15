@@ -1,3 +1,4 @@
+#include "Arduino.h"
 #ifndef _AIRCRAFT_
 #define _AIRCRAFT_
 
@@ -22,6 +23,9 @@ public:
   uint16_t getLastSeen(void);
   vector_t getVector(void);
   location_t getLocation(void);
+  
+  bool printable(float, float);
+  bool printableLabel(float, float);
 
 private:
   int16_t lbl;

@@ -58,8 +58,9 @@ void drawBaseUI(Display tft) {
   tft.drawCircle(TFT_X_CENTER, TFT_Y_CENTER, TFT_Y_CENTER - 1, TFT_BLACK);
   tft.fillCircle(TFT_X_CENTER, TFT_Y_CENTER, TFT_Y_CENTER - 1, TFT_BLACK);
   // Draw current position
-  tft.drawCircle(TFT_X_CENTER, TFT_Y_CENTER, 3, TFT_RED);
+  tft.drawCircle(TFT_X_CENTER, TFT_Y_CENTER, 2, TFT_RED);
 
+  /*
   // Inner Circle Params
   int degMark = 15;
   int ri = HEIGHT / 4;
@@ -68,6 +69,7 @@ void drawBaseUI(Display tft) {
     float a = radians(i);
     tft.drawPixel(TFT_X_CENTER + cos(a) * ri, TFT_Y_CENTER + sin(a) * ri, TFT_WHITE);
   }
+  */
 
   // Draw range text with nautical miles as units
   int offset = 12;
@@ -97,10 +99,10 @@ std::pair<float, float> calcXY(float lat, float lon) {
   dF = sqrt(xF * xF + yF * yF);
 
   /* Round and scale to selected range */
-  result.first = TFT_X_CENTER + round(xF * TFT_Y_CENTER / 50);
-  result.second = TFT_Y_CENTER - round(yF * TFT_Y_CENTER / 50);
+  result.first = TFT_X_CENTER + round(xF * TFT_Y_CENTER / RANGE);
+  result.second = TFT_Y_CENTER - round(yF * TFT_Y_CENTER / RANGE);
 
-  float posDistance = round(dF * TFT_Y_CENTER / 50);
+  float posDistance = round(dF * TFT_Y_CENTER / RANGE);
 
   return result;
 }
