@@ -29,12 +29,7 @@ Aircraft::Aircraft(location_t _location) {
 
   getXY();
   //draw();
-  /*
-  display.drawRhomb(pos.x, pos.y, AIRCRAFT_SIZE, WHITE);
-  display.setCursor(pos.x + 5, pos.y + 5);
-  display.setTextColor(WHITE);
-  display.print((int)round((float)location.alt / 100));
-  */
+  
 }
 
 #pragma endregion Constructors
@@ -135,29 +130,26 @@ void Aircraft::erase() {
     }
   }
 
-  
+
   // If vector set and outside drawing area >> return
   if (vectorSet && !printable(vec.x, vec.y))
     return;
 
   // Erase vector
   if (vectorSet) display.drawLine(pos.x, pos.y, vec.x, vec.y, BLACK);
-  
 }
 
 // Updates aircraft position on screen by removing and redrawing it
 void Aircraft::update() {
   if (locationSet) {
-    ;
+    erase();
+    getXY();
   }
-  erase();
-  getXY();
 
-  //if (vectorSet) getVectorXY();
+  if (vectorSet) getVectorXY();
   if (locationSet) {
-    ;
+    draw();
   }
-  draw();
 }
 #pragma endregion Functions
 
@@ -170,7 +162,6 @@ void Aircraft::update() {
 #pragma region Setter
 // Sets aircraft location
 void Aircraft::setLocation(location_t newLocation) {
-
   lastSeen = seconds();
 
   if (newLocation != location) {
@@ -190,10 +181,10 @@ void Aircraft::setLocation(location_t newLocation) {
 void Aircraft::setVector(vector_t newVector) {
 
   lastSeen = seconds();
-  
+
   if (newVector != vector) {
 
-    //if (locationSet) 
+    //if (locationSet)
     erase();
     vectorSet = true;
 
@@ -201,7 +192,7 @@ void Aircraft::setVector(vector_t newVector) {
 
     getVectorXY();
 
-    //if (locationSet) 
+    //if (locationSet)
     draw();
   }
 }
@@ -266,7 +257,7 @@ bool Aircraft::printable(float x, float y) {
 
 // Checks if label if printable on screen
 bool Aircraft::printableLabel(float x, float y) {
-  return (pow((x + 15 - TFT_X_CENTER), 2) + pow((y + 15 - TFT_Y_CENTER), 2) <= pow(TFT_Y_CENTER - AIRCRAFT_SIZE, 2));
+  return (pow((x + 15 - TFT_X_CENTER), 2) + pow((y + 15 - TFT_Y_CENTER), 2) <= pow(TFT_Y_CENTER - (AIRCRAFT_SIZE + 15), 2));
 }
 
 #pragma endregion Getter

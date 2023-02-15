@@ -27,7 +27,7 @@ const char* serverName = "http://192.168.43.15/dump1090/data/aircraft.json";
 // milliseconds, will quickly become a bigger number than can be stored in an int.
 unsigned long lastTime = 0;
 // Set timer to 5 seconds (5000)
-unsigned long timerDelay = 5000;
+unsigned long timerDelay = 1000;
 
 Display display;
 DynamicJsonDocument doc(49152);
@@ -109,46 +109,42 @@ void loop() {
     //Check WiFi connection status
     if (WiFi.status() == WL_CONNECTED) {
 
+
+      //###################
+      // Updating aircraft
+      //###################
       Serial.println(planes.size());
       Serial.println("-----------\n");
+      int now = round(millis() / 1000);
       for (auto& p : planes) {
-        //p.second.erase();
-        p.second.update();
-      }
-      /*
-      if (!doc.isNull()) {
-        aircrafts = doc["aircraft"];
-        for (auto aircraft : aircrafts) {
-          std::pair<float, float> tmp = calcXY(lat, lon);
-
-          float x, y;
-          x = tmp.first;
-          y = tmp.second;
-          if (printable(x, y)) {
-            display.drawRhomb(x, y, 6, BLACK);
-            display.setCursor(x + 5, y + 5);
-            display.setTextColor(BLACK);
-            display.setTextSize(1);
-            display.print((int)round((int)aircraft["altitude"] / 100));
-          }
+        if (now - p.second.getLastSeen() > 10) {
+          Serial.println("TIMEOUT");
+          p.second.erase();
+          planes.erase(p.first);
+        } else {
+          p.second.update();
         }
       }
 
-      */
-
+      
+      //##################
+      // Fetching Data
+      //##################
       // Clears the Json document and fetches new data
       doc.clear();
       httpGETRequest(serverName);
 
       aircrafts = doc["aircraft"];
 
+      
+      //######################
+      // Generating next data
+      //######################
       // Looping through every aircraft in JSON object
       for (auto aircraft : aircrafts) {
-        // ########################################################################################
-        // # If location data available extract it
-        // ########################################################################################
+        // If location data available extract it
         if (aircraft.containsKey("lat") && aircraft.containsKey("lon")) {
-          // Airplane variables
+
           std::string hex = aircraft["hex"].as<std::string>();
           std::string flight = aircraft["flight"].as<std::string>();
           float lat = aircraft["lat"].as<float>();
@@ -160,42 +156,22 @@ void loop() {
           unsigned int speed = aircraft["speed"].as<unsigned int>();
           unsigned int track = aircraft["track"].as<unsigned int>();
 
+          // create location and vectordata from airplane data
           location_t l = { altitude, lat, lon };
           vector_t v = { speed, track, vert_rate };
 
-          if(planes.find(hex) == planes.end()) {
+          // Check if the icao_hex already is inside the map
+          if (planes.find(hex) == planes.end()) {
+            // If not: Create a new airplane object and add it to 
             Aircraft a(l);
-            // Updates existing plane, or adds a new one
+            a.setVector(v);
+            // Adds a new airplane with the current icao_hex to the map
             planes[hex] = a;
           } else {
+            // If it exists, update location and vectordata
             planes[hex].setLocation(l);
             planes[hex].setVector(v);
           }
-
-          //a.setVector(v);
-
-
-
-
-
-          /*
-          std::pair<float, float> tmp = calcXY(lat, lon);
-
-          if (!isnan(lat) && !isnan(lon)) {
-            float x, y;
-            x = tmp.first;
-            y = tmp.second;
-            //double posDistance = round(dF * (HEIGHT/2) / 25);
-            //if(posDistance < TFT_DRAWABLE)
-            if (printable(x, y)) {
-              display.drawRhomb(x, y, 6, WHITE);
-              display.setCursor(x + 5, y + 5);
-              display.setTextColor(WHITE);
-              display.setTextSize(1);
-              display.print((int)round((int)aircraft["altitude"] / 100));
-            }
-          }
-          */
         }
       }
 
