@@ -1,9 +1,6 @@
 #ifndef _TOUCH_
 #define _TOUCH_
 
-//#include <Adafruit_STMPE610.h>
-
-// TOUCH SCREEN CALIBRATION DATA --------------------------------------
 #define TS_MINX 3850
 #define TS_MAXX 120
 #define TS_MINY 170
@@ -15,9 +12,7 @@
 // ISR function pointer
 typedef void (*isr_t)();
 
-//#######################################################################
-// *CLASS* >>> TFT TOUCH DRIVER SUBCLASS DEFINITION
-//#######################################################################
+
 class ADSP_STMPE610 : public Adafruit_STMPE610 {
 private:
   int INT_PIN;

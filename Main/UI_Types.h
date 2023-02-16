@@ -1,14 +1,9 @@
 #ifndef _UI_TYPES_
 #define _UI_TYPES_
 
-#include <unordered_map>
 #include "ILI9488.h"
-//#include "UI_Elements.h"
-//#include "STMPE610.h"
-//#include "Font.h"
 
-
-// LCD 16 BIT COLORS --------------------------------------------------
+// LCD 16 BIT COLORS
 #define BLACK 0x0000
 #define WHITE 0xFFFF
 #define BLUE 0x001F
@@ -26,14 +21,13 @@
 #define DGREY2 0x2104
 #define SKYBLUE 0x041F
 #define GNDBROWN 0x8208
-//#define ORANGE 0xFC42
 
 // RGB to 565 coversion
 static inline uint16_t RGB(uint8_t R, uint8_t G, uint8_t B) {
   return ((R & 0xF8) << 8) | ((G & 0xFC) << 3) | (B >> 3);
 }
 
-//#####################################################################1
+//#####################################################################
 // UI COLOR DEFINITIONS
 //#####################################################################
 #define UI_BACKGROUND_COLOR RGB(60, 60, 60)
@@ -47,18 +41,6 @@ static inline uint16_t RGB(uint8_t R, uint8_t G, uint8_t B) {
 
 #define UI_INNER_CIRCLE_DEG 15
 
-// SYSTEM  -----------------------------------------------------------
-#define SYSTEM_NAME "ADSB-Radar"
-#define ADSB_VER "v0.1"
-#define ADSB_BUILD_NUM "000000"
-
-// BATTERY VOLTAGE RANGE ----------------------------------------------
-#define BATT_MAX 4500
-#define BATT_SAMPLES 10
-#define BATT_SAMPLES_DELAY 10
-#define BATT_MEASUREMENT_RATE_SECONDS 15
-#define BATT_MIN (BATT_MAX * 0.8)  // Lipo 80% rule
-
 // UI DEFINES
 #define AIRCRAFT_SIZE 6
 #define VECTOR_SIZE 20
@@ -67,68 +49,26 @@ static inline uint16_t RGB(uint8_t R, uint8_t G, uint8_t B) {
 
 #define MIN_RANGE 10
 #define MAX_RANGE 250
-#define DEFAULT_RANGE 40
+#define DEFAULT_RANGE 50
 
-// EARTH RADIUS ------------------------------------------------------
-//Metric - Metric (m, km, km/h)  Imperial (ft, NM, knots)
+// EARTH RADIUS
+// Metric (m, km, km/h)
+// Imperial (ft, NM, knots)
 #define EARTH_RAD_KM 6371
 #define EARTH_RAD_NM 3440
+
+
+//#####################################################################
+// Structs
+//#####################################################################
 
 struct screenRegion_t {
   int xL, xR;
   int yT, yB;
 };
 
-enum buttonType {
-  TOGGLE,
-  MOMENTARY,
-  ICON,
-  SWITCH
-};
-
 struct point_t {
   uint16_t x, y;
-};
-
-struct tftPoint_t {
-  uint16_t x, y;
-};
-
-enum states_t {
-  OLD,
-  RECENT,
-  ACTIVE,
-  INACTIVE,
-  ON,
-  OFF,
-  DIMMED
-};
-
-struct program_states_t {
-  states_t MAG;
-  states_t GPS;
-  states_t BLUETOOTH;
-  states_t display;
-
-  // States
-  uint8_t battery;
-  uint8_t brightness;
-  uint16_t currentRange;
-  uint16_t tracking;
-
-  // Timing
-  uint16_t lastGPSupdate;
-  uint16_t lastMAGupdate;
-  uint16_t lastTStouch;
-
-  char time[16];
-
-  // Flags
-  bool northUp = true;
-  bool initComplete = false;
-  bool drawTraffic = true;
-  bool drawAirports = false;
-  bool debugTouchInput = false;
 };
 
 struct location_t {
@@ -141,26 +81,16 @@ struct vector_t {
   int16_t vrate;
 };
 
-enum traffic_t {
-  ADSB,
-  MLAT,
-  TISB
-};
-
-enum ui_t {
-  NULL_UI,
-  MAIN_UI,
-  TRAFFIC_UI,
-  WEATHER_UI,
-  MAP_UI,
-  SETTINGS_UI,
-  COMMON
-};
-
 struct mydata_t {
   vector_t vector{ 0, 0, 0 };
   location_t location{ 0, 0.00, 0.00 };
 };
+
+
+
+//#####################################################################
+// Operators
+//#####################################################################
 
 inline bool operator==(const point_t &ts, const screenRegion_t &reg) {
   return ts.x > reg.xL && ts.x < reg.xR && ts.y > reg.yT && ts.y < reg.yB;

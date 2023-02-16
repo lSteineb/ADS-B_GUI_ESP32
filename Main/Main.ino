@@ -7,7 +7,9 @@
 #include <vector>
 #include <map>
 
+// include YOUR_CREDENTIALS.h instead after filling out your wifi access
 #include "Credentials.h"
+
 #include "ILI9488.h"
 #include "Aircraft.h"
 #include "UI.h"
@@ -20,16 +22,17 @@ const char* ssid = WIFI_SSID;
 const char* password = WIFI_PASSWD;
 
 // IP address of raspberry pi with dump1090 image
-//const char* serverName = "http://192.168.178.70/dump1090/data/aircraft.json";
-const char* serverName = "http://192.168.43.15/dump1090/data/aircraft.json";
+const char* serverName = "http://192.168.178.70/dump1090/data/aircraft.json";
 
 // The following variables are unsigned longs because the time, measured in
 // milliseconds, will quickly become a bigger number than can be stored in an int.
+
+// Last time the program was updated (in ms)
 unsigned long lastTime = 0;
-// Set timer to 5 seconds (5000)
+// Set timer to 1 seconds (1000ms)
 unsigned long timerDelay = 1000;
 
-Display display;
+ILI9488 display;
 DynamicJsonDocument doc(49152);
 
 WiFiClient client;
@@ -83,6 +86,7 @@ void setup() {
   display.setTextSize(2);
 
   Serial.begin(115200);
+
   my.location = myloc;
 
   WiFi.begin(ssid, password);
@@ -95,56 +99,48 @@ void setup() {
   display.print("Connected to WiFi network with IP Address: ");
   display.println(WiFi.localIP());
   display.println(" ");
-  display.println("It will take 5 seconds before publishing the first reading.");
+  display.println("It will take 1 second before publishing the first reading.");
   display.println(" ");
 
-  delay(3000);
+  delay(5000);
   drawBaseUI(display);
 }
 
 
 void loop() {
-  //Send an HTTP GET request every 5 seconds
+  //Send an HTTP GET request every second
   if ((millis() - lastTime) > timerDelay) {
-    //Check WiFi connection status
     if (WiFi.status() == WL_CONNECTED) {
 
-
-      //###################
-      // Updating aircraft
-      //###################
-      Serial.println(planes.size());
-      Serial.println("-----------\n");
-      int now = round(millis() / 1000);
+      //###########################
+      // Updating/Erasing aircraft
+      //###########################
       for (auto& p : planes) {
-        if (now - p.second.getLastSeen() > 10) {
-          Serial.println("TIMEOUT");
+        if (round(lastTime / 1000) - p.second.getLastSeen() > 5) {
           p.second.erase();
           planes.erase(p.first);
-        } else {
+        } else
           p.second.update();
-        }
       }
 
-      
-      //##################
-      // Fetching Data
-      //##################
+
+      //###################
+      // Fetching new Data
+      //###################
       // Clears the Json document and fetches new data
       doc.clear();
       httpGETRequest(serverName);
 
       aircrafts = doc["aircraft"];
 
-      
+
       //######################
       // Generating next data
       //######################
       // Looping through every aircraft in JSON object
-      for (auto aircraft : aircrafts) {
+      for (const auto& aircraft : aircrafts) {
         // If location data available extract it
         if (aircraft.containsKey("lat") && aircraft.containsKey("lon")) {
-
           std::string hex = aircraft["hex"].as<std::string>();
           std::string flight = aircraft["flight"].as<std::string>();
           float lat = aircraft["lat"].as<float>();
@@ -160,12 +156,10 @@ void loop() {
           location_t l = { altitude, lat, lon };
           vector_t v = { speed, track, vert_rate };
 
-          // Check if the icao_hex already is inside the map
+          // Create new airplane if it does not already exist
           if (planes.find(hex) == planes.end()) {
-            // If not: Create a new airplane object and add it to 
             Aircraft a(l);
             a.setVector(v);
-            // Adds a new airplane with the current icao_hex to the map
             planes[hex] = a;
           } else {
             // If it exists, update location and vectordata
@@ -175,9 +169,6 @@ void loop() {
         }
       }
 
-
-
-
     } else {
       Serial.println("WiFi Disconnected");
     }
@@ -186,20 +177,9 @@ void loop() {
 }
 
 
-bool printable(float& x, float& y) {
-  return (pow((x - TFT_X_CENTER), 2) + pow((y - TFT_Y_CENTER), 2) <= pow(TFT_Y_CENTER - AIRCRAFT_SIZE, 2));
-}
-
-bool printableLbl(float& x, float& y) {
-  return (pow((x + 15 - TFT_X_CENTER), 2) + pow((y + 15 - TFT_Y_CENTER), 2) <= pow(TFT_Y_CENTER - (AIRCRAFT_SIZE + 15), 2));
-}
-
-
-
 void httpGETRequest(const char* serverName) {
   http.useHTTP10(true);
   http.begin(client, serverName);
-  // Send HTTP GET request
   int httpResponseCode = http.GET();
 
   if (httpResponseCode > 0) {
@@ -213,6 +193,6 @@ void httpGETRequest(const char* serverName) {
     Serial.print("Error code: ");
     Serial.println(httpResponseCode);
   }
-  // Free resources
+  
   http.end();
 }

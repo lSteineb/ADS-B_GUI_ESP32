@@ -1,6 +1,15 @@
 #include "UI_Elements.h"
 
-extern Display display;
+//#######################################################################
+// GLOBALS
+//#######################################################################
+extern ILI9488 display;
+
+
+
+//#######################################################################
+// Constructors
+//#######################################################################
 
 UI_Button::UI_Button(int16_t _x, int16_t _y, uint16_t _w, uint16_t _h) {
   x = _x;
@@ -16,6 +25,12 @@ UI_Button::UI_Button(const char* buttonLabel, int16_t _x, int16_t _y, uint16_t _
   w = _w;
   h = _h;
 }
+
+
+
+//#######################################################################
+// Functions
+//#######################################################################
 
 void UI_Button::init() {}
 
@@ -51,8 +66,10 @@ void UI_Button::setLabel(const char* buttonLabel, uint8_t textSize) {
 }
 
 bool UI_Button::toggle() {
-  if (toggled) toggled = false;
-  else toggled = true;
+  if (toggled)
+    toggled = false;
+  else
+    toggled = true;
 
   return toggled;
 }
@@ -64,5 +81,3 @@ bool UI_Button::isActive() {
 void UI_Button::setDebounce(uint16_t delayMS) {
   debounceDelay = delayMS;
 }
-
-

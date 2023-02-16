@@ -1,19 +1,25 @@
 #include "ILI9488.h"
 
-Display tft;
+//#######################################################################
+// Contructors
+//#######################################################################
+ILI9488::ILI9488() {}
 
-// Constructor
-Display::Display() {}
+
+
+//#######################################################################
+// Functions
+//#######################################################################
 
 // Init
-void Display::init() {
+void ILI9488::init() {
   begin();
   setRotation(-1);
   showWarning();
 }
 
 // Shows warning message
-void Display::showWarning() {
+void ILI9488::showWarning() {
   fillScreen(TFT_BLACK);
 
   setTextDatum(TC_DATUM);  // centers upcoming text around the middle of the screen
@@ -34,7 +40,7 @@ void Display::showWarning() {
 }
 
 // Draws a Rhomb
-void Display::drawRhomb(int16_t x0, int16_t y0, int16_t size, uint16_t color) {
+void ILI9488::drawRhomb(int16_t x0, int16_t y0, int16_t size, uint16_t color) {
   drawLine(x0, y0 - size, x0 - size, y0, color);
   drawLine(x0, y0 - size, x0 + size, y0, color);
   drawLine(x0 - size, y0, x0, y0 + size, color);
@@ -42,7 +48,7 @@ void Display::drawRhomb(int16_t x0, int16_t y0, int16_t size, uint16_t color) {
 }
 
 // Erases given text at pos(x,y)
-void Display::eraseText(const char *str, uint16_t xPos, uint16_t yPos, uint16_t color) {
+void ILI9488::eraseText(const char *str, uint16_t xPos, uint16_t yPos, uint16_t color) {
   int16_t x, y;
   uint16_t w, h;
 
@@ -51,7 +57,7 @@ void Display::eraseText(const char *str, uint16_t xPos, uint16_t yPos, uint16_t 
 }
 
 // Erases given number at pos(x,y)
-void Display::eraseText(int n, uint16_t xPos, uint16_t yPos, uint16_t color) {
+void ILI9488::eraseText(int n, uint16_t xPos, uint16_t yPos, uint16_t color) {
   int16_t x, y;
   uint16_t w, h;
 
@@ -62,7 +68,7 @@ void Display::eraseText(int n, uint16_t xPos, uint16_t yPos, uint16_t color) {
 }
 
 // Gets text bounds
-void Display::getTextBounds(const char *str, int16_t x, int16_t y, int16_t *x1, int16_t *y1, uint16_t *w, uint16_t *h) {
+void ILI9488::getTextBounds(const char *str, int16_t x, int16_t y, int16_t *x1, int16_t *y1, uint16_t *w, uint16_t *h) {
   uint8_t c;  // Current character
 
   *x1 = x;
@@ -86,7 +92,7 @@ void Display::getTextBounds(const char *str, int16_t x, int16_t y, int16_t *x1, 
 }
 
 // Gets character bounds
-void Display::charBounds(char c, int16_t *x, int16_t *y, int16_t *minx, int16_t *miny, int16_t *maxx, int16_t *maxy) {
+void ILI9488::charBounds(char c, int16_t *x, int16_t *y, int16_t *minx, int16_t *miny, int16_t *maxx, int16_t *maxy) {
   auto textsize = fontHeight(GFXFF);
   if (c == '\n') {       // Newline?
     *x = 0;              // Reset x to zero,

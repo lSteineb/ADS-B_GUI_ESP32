@@ -38,12 +38,9 @@ public:
 
   void draw();
 
-  ui_t getAssignedUI();
-  void assignUI(ui_t);
-
   void setLabelTextSize(uint8_t _size);
-  void setLabel(const char*);           // label text
-  void setLabel(const char*, uint8_t);  // label text, text size
+  void setLabel(const char*);
+  void setLabel(const char*, uint8_t);
 
   bool toggle();
   void momentaryPress();
@@ -52,7 +49,7 @@ public:
   void setActive();
   void setInactive();
 
-  void setDebounce(uint16_t);  // debounce ms
+  void setDebounce(uint16_t);
   void setFont(const GFXfont* _font);
 private:
 };

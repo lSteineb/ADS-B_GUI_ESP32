@@ -1,9 +1,9 @@
-#ifndef _DISPLAY_
-#define _DISPLAY_
+#ifndef _ILI9488_
+#define _ILI9488_
 
 #include <Arduino.h>
 #include <Arduino_GFX_Library.h>
-#include <TFT_eSPI.h>  // Hardware-specific library
+#include <TFT_eSPI.h>
 #include <SPI.h>
 #include <string>
 
@@ -13,9 +13,9 @@
 #define TFT_Y_CENTER HEIGHT / 2
 #define GFXFF 1
 
-class Display : public TFT_eSPI {
+class ILI9488 : public TFT_eSPI {
 public:
-  Display();
+  ILI9488();
 
   void init();
   void showWarning();
