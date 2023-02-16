@@ -1,13 +1,13 @@
 # ADS-B_GUI_ESP32
 
 | JSON argument  | description |
-| :---: | :---: |
+| :---: | :--- |
 | now | the time this file was generated, in seconds since Jan 1 1970 00:00:00 GMT (the Unix epoch)  |
-|     |     |
+| --------------- | --------------- |
 | messages | the total number of Mode S messages processed since dump1090 started  |
-|     |     |
+| --------------- | --------------- |
 | aircraft | an array of JSON objects, one per known aircraft. Each aircraft has the following keys. Keys will be omitted if data is not available |
-|     |     |
+| --------------- | --------------- |
 | hex       | the 24-bit ICAO identifier of the aircraft, as 6 hex digits |
 | squak     | the 4-digit squawk code (octal representation)  |
 | flight    | the flight name / callsign  |
