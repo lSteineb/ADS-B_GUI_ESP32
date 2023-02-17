@@ -10,12 +10,14 @@ extern ILI9488 display;
 //#######################################################################
 // Constructors
 //#######################################################################
+#pragma region Constructors
 
 UI_Button::UI_Button(int16_t _x, int16_t _y, uint16_t _w, uint16_t _h) {
   x = _x;
   y = _y;
   w = _w;
   h = _h;
+  region = { x, x + w, y, y + h };
 }
 
 UI_Button::UI_Button(const char* buttonLabel, int16_t _x, int16_t _y, uint16_t _w, uint16_t _h) {
@@ -24,13 +26,17 @@ UI_Button::UI_Button(const char* buttonLabel, int16_t _x, int16_t _y, uint16_t _
   y = _y;
   w = _w;
   h = _h;
+  region = { x, x + w, y, y + h };
 }
+
+#pragma endregion Constructors
 
 
 
 //#######################################################################
 // Functions
 //#######################################################################
+#pragma region Functions
 
 void UI_Button::init() {}
 
@@ -45,15 +51,25 @@ void UI_Button::setLabelTextSize(uint8_t _size) {
 void UI_Button::draw() {
   display.drawRoundRect(x, y, w, h, 10, outlineColor);
 
-  int16_t xT, yT;
-  uint16_t wT, hT;
-
   display.setTextSize(labelTextSize);
   display.setTextColor(textColor);
 
-  display.getTextBounds(label, 0, 0, &xT, &yT, &wT, &hT);
-  display.setCursor(x + w / 2 - wT / 2, y + h / 2 - hT / 2);
+  display.setCursor(x + w / 2 - 8, y + h / 2 - 8);
   display.print(label);
+}
+
+void UI_Button::drawPressed() {
+  display.drawRoundRect(x, y, w, h, 10, pressedColor);
+}
+
+void UI_Button::drawReleased() {
+  display.drawRoundRect(x, y, w, h, 10, outlineColor);
+}
+
+void UI_Button::momentaryPress() {
+  drawPressed();
+  delay(debounceDelay / portTICK_PERIOD_MS);
+  drawReleased();
 }
 
 void UI_Button::setLabel(const char* buttonLabel) {
@@ -63,6 +79,14 @@ void UI_Button::setLabel(const char* buttonLabel) {
 void UI_Button::setLabel(const char* buttonLabel, uint8_t textSize) {
   strcpy(label, buttonLabel);
   labelTextSize = textSize;
+}
+
+void UI_Button::setFillColor(uint16_t _color) {
+  fillColor = _color;
+}
+
+void UI_Button::setPressedColor(uint16_t _color) {
+  pressedColor = _color;
 }
 
 bool UI_Button::toggle() {
@@ -81,3 +105,9 @@ bool UI_Button::isActive() {
 void UI_Button::setDebounce(uint16_t delayMS) {
   debounceDelay = delayMS;
 }
+
+screenRegion_t UI_Button::getRegion() {
+  return region;
+}
+
+#pragma endregion Functions

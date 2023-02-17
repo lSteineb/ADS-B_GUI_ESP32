@@ -3,48 +3,33 @@
 
 #include <cmath>
 #include <string>
+#include <unordered_map>
 
 #include "Aircraft.h"
 #include "UI_Types.h"
+#include "UI_Elements.h"
 
 #define EARTH_RAD_KM 6371
 #define EARTH_RAD_NM 3440
-#define RANGE 50
 
-// Current location = Düsseldorf
-location_t myloc{ 0, 51.192560, 6.808518 };
 
-extern mydata_t my;
+class UI {
+public:
+  std::unordered_map<uint8_t, UI_Button> buttons;
 
-// draws the Base UI
-void drawBaseUI(ILI9488 tft) {
-  my.location = myloc;
+  UI();
 
-  tft.fillScreen(BLUE);
+  void init();
+  void drawBaseUI();
+  void drawUIButtons();
+  void showWarning();
+  void setRange(uint16_t);
 
-  // Top bar
-  tft.fillRect(0, 0, WIDTH, 30, DARKGREY);
-  tft.drawFastHLine(0, 30, WIDTH, WHITE);
-  tft.setTextSize(2);
-  tft.setTextColor(WHITE);
-  tft.setCursor(10, 10);
-  tft.print("TRAFFIC");
+  uint8_t processInput(point_t);
+  void addButton(uint8_t, UI_Button);
 
-  // Restore Default Font
-  tft.setTextSize(1);
-  tft.setTextColor(WHITE);
+};
 
-  // Draw radarcircle
-  tft.fillCircle(TFT_X_CENTER, TFT_Y_CENTER, TFT_Y_CENTER - 1, BLACK);
-
-  // Draw range text with nautical miles as units
-  tft.setTextSize(2);
-  tft.setTextColor(WHITE);
-  tft.setCursor(WIDTH - WIDTH / 3 + 30, HEIGHT - HEIGHT / 10);
-  tft.print(RANGE);
-  tft.setCursor(WIDTH - WIDTH / 3 + 58, HEIGHT - HEIGHT / 10);
-  tft.print("Nm");
-}
 
 
 #endif

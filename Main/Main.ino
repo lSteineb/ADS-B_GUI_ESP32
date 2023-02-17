@@ -31,8 +31,12 @@ const char* serverName = "http://192.168.178.70/dump1090/data/aircraft.json";
 unsigned long lastTime = 0;
 // Set timer to 1 seconds (1000ms)
 unsigned long timerDelay = 1000;
+// Touch coordinates;
+uint16_t t_x = 0, t_y = 0;
+
 
 ILI9488 display;
+UI ui;
 DynamicJsonDocument doc(49152);
 
 WiFiClient client;
@@ -42,6 +46,7 @@ JsonArray aircrafts;
 std::map<std::string, Aircraft> planes;
 
 mydata_t my;
+programdata_t prog;
 
 #pragma region Jsondata
 /* 
@@ -83,11 +88,14 @@ rssi      : recent average RSSI (signal power), in dbFS; this will always be neg
 //########################################################################################
 void setup() {
   display.init();
+  display.touch_calibrate();
   display.setTextSize(2);
 
-  Serial.begin(115200);
+  ui.showWarning();
 
-  my.location = myloc;
+  display.fillScreen(BLACK);
+
+  Serial.begin(115200);
 
   WiFi.begin(ssid, password);
   display.print("Connecting");
@@ -103,7 +111,7 @@ void setup() {
   display.println(" ");
 
   delay(5000);
-  drawBaseUI(display);
+  ui.init();
 }
 
 
@@ -174,8 +182,22 @@ void loop() {
     }
     lastTime = millis();
   }
-}
 
+  if (display.getTouch(&t_x, &t_y)) {
+    uint8_t id = ui.processInput({ t_x, t_y });
+
+    if (id == 0) {
+      if (prog.currentRange + 10 <= MAX_RANGE)
+        ui.setRange(prog.currentRange + 10);
+    } else if (id == 1) {
+      if (prog.currentRange - 10 >= MIN_RANGE)
+        ui.setRange(prog.currentRange - 10);
+    }
+
+    for (auto& p : planes)
+      p.second.update();
+  }
+}
 
 void httpGETRequest(const char* serverName) {
   http.useHTTP10(true);
@@ -193,6 +215,6 @@ void httpGETRequest(const char* serverName) {
     Serial.print("Error code: ");
     Serial.println(httpResponseCode);
   }
-  
+
   http.end();
 }

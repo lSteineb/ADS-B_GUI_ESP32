@@ -1,6 +1,7 @@
 #ifndef _ILI9488_
 #define _ILI9488_
 
+#include "FS.h"
 #include <Arduino.h>
 #include <Arduino_GFX_Library.h>
 #include <TFT_eSPI.h>
@@ -13,11 +14,15 @@
 #define TFT_Y_CENTER HEIGHT / 2
 #define GFXFF 1
 
+#define CALIBRATION_FILE "/TouchCalData"
+#define REPEAT_CAL false
+
 class ILI9488 : public TFT_eSPI {
 public:
   ILI9488();
 
   void init();
+  void touch_calibrate();
   void showWarning();
 
   void eraseText(int, uint16_t, uint16_t, uint16_t);

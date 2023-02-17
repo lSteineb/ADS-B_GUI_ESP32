@@ -8,6 +8,7 @@
 
 extern ILI9488 display;
 extern mydata_t my;
+extern programdata_t prog;
 
 static int seconds() {
   return round(millis() / 1000);
@@ -198,10 +199,10 @@ void Aircraft::getXY() {
   dF = sqrt(xF * xF + yF * yF);
 
   // Round and scale to selected range
-  pos.x = TFT_X_CENTER + round(xF * (HEIGHT / 2) / 50);
-  pos.y = TFT_Y_CENTER - round(yF * (HEIGHT / 2) / 50);
+  pos.x = TFT_X_CENTER + round(xF * (HEIGHT / 2) / prog.currentRange);
+  pos.y = TFT_Y_CENTER - round(yF * (HEIGHT / 2) / prog.currentRange);
 
-  posDistance = round(dF * (HEIGHT / 2) / 50);
+  posDistance = round(dF * (HEIGHT / 2) / prog.currentRange);
 }
 
 // Gets current aircraft vector

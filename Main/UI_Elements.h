@@ -12,9 +12,11 @@ public:
   uint8_t labelTextSize = 1;
 
   // Dimensions
-  uint8_t x, y;
-  uint8_t w, h;
-  
+  int16_t x, y;
+  uint16_t w, h;
+
+  screenRegion_t region;
+
   uint16_t debounceDelay = 200;
   bool toggled = false;
   callback_t callback = nullptr;
@@ -23,7 +25,7 @@ public:
   // Colors
   uint16_t fillColor = 0;
   uint16_t outlineColor = WHITE;
-  uint16_t pressedColor = GREEN;
+  uint16_t pressedColor = BLACK;
   uint16_t textColor = WHITE;
 
   UI_Button() {}
@@ -34,6 +36,9 @@ public:
   void init();
   void init(uint8_t);
 
+
+  void setFillColor(uint16_t _color);
+  void setPressedColor(uint16_t _color);
   void setCallback(callback_t);
 
   void draw();
@@ -43,6 +48,8 @@ public:
   void setLabel(const char*, uint8_t);
 
   bool toggle();
+  void drawPressed();
+  void drawReleased();
   void momentaryPress();
 
   bool isActive();
@@ -51,6 +58,8 @@ public:
 
   void setDebounce(uint16_t);
   void setFont(const GFXfont* _font);
+
+  screenRegion_t getRegion();
 private:
 };
 

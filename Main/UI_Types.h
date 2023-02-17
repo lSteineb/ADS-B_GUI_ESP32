@@ -1,3 +1,4 @@
+#include "stdint.h"
 #ifndef _UI_TYPES_
 #define _UI_TYPES_
 
@@ -39,16 +40,13 @@ static inline uint16_t RGB(uint8_t R, uint8_t G, uint8_t B) {
 
 #define UI_BUTTON_FILL_COLOR RGB(70, 70, 70)
 
-#define UI_INNER_CIRCLE_DEG 15
-
 // UI DEFINES
 #define AIRCRAFT_SIZE 6
 #define VECTOR_SIZE 20
-#define AIRPORT_SIZE 3
-#define AIRCRAFT_TTL 30
+
 
 #define MIN_RANGE 10
-#define MAX_RANGE 250
+#define MAX_RANGE 140
 #define DEFAULT_RANGE 50
 
 // EARTH RADIUS
@@ -86,7 +84,10 @@ struct mydata_t {
   location_t location{ 0, 0.00, 0.00 };
 };
 
-
+struct programdata_t {
+  uint8_t currentRange = DEFAULT_RANGE;
+  // TODO: add more data
+};
 
 //#####################################################################
 // Operators
