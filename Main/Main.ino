@@ -33,7 +33,7 @@ unsigned long lastTime = 0;
 unsigned long timerDelay = 1000;
 // Touch coordinates;
 point_t touch_point;
-
+bool pressed = false;
 
 ILI9488 display;
 UI ui;
@@ -152,14 +152,14 @@ void loop() {
           const char* hex = aircraft["hex"].as<const char*>();
           const char* flight = aircraft["flight"].as<const char*>();
           const char* category = aircraft["category"].as<const char*>();
+          const char* squawk = aircraft["squawk"].as<const char*>();
           float lat = aircraft["lat"].as<float>();
           float lon = aircraft["lon"].as<float>();
           float seen_pos = aircraft["seen_pos"].as<float>();
           int altitude = aircraft["altitude"].as<int>();
-          int squawk = aircraft["squawk"].as<int>();
-          int vert_rate = aircraft["vert_rate"].as<int>();
-          unsigned int speed = aircraft["speed"].as<unsigned int>();
-          unsigned int track = aircraft["track"].as<unsigned int>();
+          signed short vert_rate = aircraft["vert_rate"].as<signed short>();
+          short unsigned int speed = aircraft["speed"].as<unsigned short>();
+          short unsigned int track = aircraft["track"].as<unsigned short>();
 
           // create location and vectordata from airplane data
           location_t l = { altitude, lat, lon };
@@ -186,30 +186,35 @@ void loop() {
     }
     lastTime = millis();
   }
-
+  
   // Touch functionality
   if (display.getTouch(&touch_point.x, &touch_point.y)) {
-    // Check if zoom buttons have been pressed
-    uint8_t id = ui.processInput(touch_point);
+    if (!pressed) {
+      // Check if zoom buttons have been pressed
+      uint8_t id = ui.processInput(touch_point);
 
-    if (id == 0) {
-      if (prog.currentRange + 10 <= MAX_RANGE)
-        ui.setRange(prog.currentRange + 10);
-    } else if (id == 1) {
-      if (prog.currentRange - 10 >= MIN_RANGE)
-        ui.setRange(prog.currentRange - 10);
-    }
-
-    // Check if airplane has been touched
-    for (auto& p : planes) {
-      if (p.second.checkCollision(touch_point)) {
-        p.second.setSelected(true);
-        p.second.displayInformation();
+      if (id == 0) {
+        if (prog.currentRange + 10 <= MAX_RANGE)
+          ui.setRange(prog.currentRange + 10);
+      } else if (id == 1) {
+        if (prog.currentRange - 10 >= MIN_RANGE)
+          ui.setRange(prog.currentRange - 10);
       }
 
-      // Update all planes after zooming in/out
-      p.second.update();
+      // Check if airplane has been touched
+      for (auto& p : planes) {
+        if (p.second.checkCollision(touch_point)) {
+          p.second.setSelected(true);
+          p.second.displayInformation();
+        }
+
+        // Update all planes after zooming in/out
+        p.second.update();
+      }
+      pressed = true;
     }
+  } else {
+    pressed = false;
   }
 }
 

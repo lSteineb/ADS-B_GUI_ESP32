@@ -82,7 +82,7 @@ struct vector_t {
 
 struct information_t {
   const char* icao_hex;
-  uint16_t squawk;
+  const char* squawk;
   const char* flight;
   const char* category;
 };

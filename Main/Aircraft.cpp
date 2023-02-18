@@ -155,7 +155,7 @@ void Aircraft::update() {
 }
 
 bool Aircraft::checkCollision(point_t touch_point) {
-  return (touch_point.x >= pos.x - AIRCRAFT_SIZE / 2 - 2 && touch_point.x <= pos.x + AIRCRAFT_SIZE / 2 + 2 && touch_point.y >= pos.y - AIRCRAFT_SIZE / 2 - 2 && touch_point.y <= pos.y + AIRCRAFT_SIZE / 2 + 2);
+  return (touch_point.x >= pos.x - AIRCRAFT_SIZE / 2 - 4 && touch_point.x <= pos.x + AIRCRAFT_SIZE / 2 + 4 && touch_point.y >= pos.y - AIRCRAFT_SIZE / 2 - 4 && touch_point.y <= pos.y + AIRCRAFT_SIZE / 2 + 4);
 }
 
 void Aircraft::displayInformation() {
@@ -236,7 +236,7 @@ void Aircraft::setInformation(information_t newInformation) {
   // 7700 = general emergency
   // 7600 = radio failure
   // 7500 = attempted hijacking/breach of the flightdeck
-  if (information.squawk == 7700 || information.squawk == 7600 || information.squawk == 7500)
+  if (information.squawk == "7700" || information.squawk == "7600" || information.squawk == "7500")
     emergency = true;
   else
     emergency = false;
