@@ -1,3 +1,4 @@
+#include <string>
 #include "stdint.h"
 #ifndef _UI_TYPES_
 #define _UI_TYPES_
@@ -45,9 +46,9 @@ static inline uint16_t RGB(uint8_t R, uint8_t G, uint8_t B) {
 #define VECTOR_SIZE 20
 
 
-#define MIN_RANGE 10
-#define MAX_RANGE 140
-#define DEFAULT_RANGE 50
+#define MIN_RANGE 10  // aprox. 19 km
+#define MAX_RANGE 140 // aprox. 260 km
+#define DEFAULT_RANGE 50 // aprox 92 km
 
 // EARTH RADIUS
 // Metric (m, km, km/h)
@@ -79,6 +80,13 @@ struct vector_t {
   int16_t vrate;
 };
 
+struct information_t {
+  const char* icao_hex;
+  uint16_t squawk;
+  const char* flight;
+  const char* category;
+};
+
 struct mydata_t {
   vector_t vector{ 0, 0, 0 };
   location_t location{ 0, 0.00, 0.00 };
@@ -103,6 +111,10 @@ static inline bool operator!=(const location_t &loc1, const location_t &loc2) {
 
 static inline bool operator!=(const vector_t &vect1, const vector_t &vect2) {
   return vect1.speed != vect2.speed || vect1.heading != vect2.heading || vect1.vrate != vect2.vrate;
+};
+
+static inline bool operator!=(const information_t &info1, const information_t &info2) {
+  return info1.icao_hex != info2.icao_hex || info1.squawk != info2.squawk || info1.flight != info2.flight || info1.category != info2.category;
 };
 
 #endif

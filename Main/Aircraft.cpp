@@ -57,7 +57,10 @@ void Aircraft::draw() {
     return;
 
   // Draw aircraft
-  display.drawRhomb(pos.x, pos.y, AIRCRAFT_SIZE, WHITE);
+  if (emergency)
+    display.drawRhomb(pos.x, pos.y, AIRCRAFT_SIZE, RED);
+  else
+    display.drawRhomb(pos.x, pos.y, AIRCRAFT_SIZE, WHITE);
 
   // Draw altitude label in FL format (FL350 = 35000ft)
   lbl = round((float)location.alt / 100);
@@ -79,6 +82,15 @@ void Aircraft::draw() {
       display.print(lbl);
     }
     display.setTextColor(WHITE);
+  }
+
+  // Draw emergency label
+  if (emergency) {
+    if (posDistance <= TFT_LBL_DRAWABLE) {
+      display.setCursor(pos.x + 5, pos.y - 10);
+      display.setTextColor(RED);
+      display.print("EM");
+    }
   }
 
   // If vector outside of drawing area -> return
@@ -107,6 +119,15 @@ void Aircraft::erase() {
     display.print(lbl);
   }
 
+  // Erase emergency label
+  if (emergency) {
+    if (posDistance <= TFT_LBL_DRAWABLE) {
+      display.setCursor(pos.x + 5, pos.y - 10);
+      display.setTextColor(BLACK);
+      display.print("EM");
+    }
+  }
+
   // If vector set and outside drawing area -> return
   if (vectorSet && vectDistance >= TFT_DRAWABLE)
     return;
@@ -123,11 +144,34 @@ void Aircraft::update() {
     getXY();
   }
 
+  if (selected)
+    selected = false;
+
   if (vectorSet)
     getVectorXY();
 
   if (locationSet)
     draw();
+}
+
+bool Aircraft::checkCollision(point_t touch_point) {
+  return (touch_point.x >= pos.x - AIRCRAFT_SIZE / 2 - 2 && touch_point.x <= pos.x + AIRCRAFT_SIZE / 2 + 2 && touch_point.y >= pos.y - AIRCRAFT_SIZE / 2 - 2 && touch_point.y <= pos.y + AIRCRAFT_SIZE / 2 + 2);
+}
+
+void Aircraft::displayInformation() {
+  Serial.print("hex: ");
+  Serial.println(information.icao_hex);
+
+  Serial.print("squawk: ");
+  Serial.println(information.squawk);
+
+  Serial.print("flight: ");
+  Serial.println(information.flight);
+
+  Serial.print("category: ");
+  Serial.println(information.category);
+
+  Serial.println();
 }
 
 #pragma endregion Functions
@@ -179,6 +223,31 @@ void Aircraft::setVector(vector_t newVector) {
       draw();
   }
 }
+
+// Sets additional information_t = {icao_hex, squawk, flight, category}
+void Aircraft::setInformation(information_t newInformation) {
+
+  lastSeen = seconds();
+
+  if (newInformation != information) {
+    information = newInformation;
+  }
+
+  // 7700 = general emergency
+  // 7600 = radio failure
+  // 7500 = attempted hijacking/breach of the flightdeck
+  if (information.squawk == 7700 || information.squawk == 7600 || information.squawk == 7500)
+    emergency = true;
+  else
+    emergency = false;
+
+}
+
+// Sets if aircraft is selected on touchscreen
+void Aircraft::setSelected(bool select) {
+  selected = select;
+}
+
 #pragma endregion Setter
 
 
@@ -233,6 +302,16 @@ vector_t Aircraft::getVector(void) {
 // Gets the location of the aircraft
 location_t Aircraft::getLocation(void) {
   return location;
+}
+
+// Gets the additional aircraft information
+information_t Aircraft::getInformation(void) {
+  return information;
+}
+
+// Gets if aircraft has been selected on the touchscreen
+bool Aircraft::getSelected(void) {
+  return selected;
 }
 
 #pragma endregion Getter

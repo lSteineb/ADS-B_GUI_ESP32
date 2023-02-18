@@ -18,27 +18,23 @@ void ILI9488::init() {
 }
 
 
-void ILI9488::touch_calibrate()
-{
+void ILI9488::touch_calibrate() {
   uint16_t calData[5];
   uint8_t calDataOK = 0;
 
-  // check file system exists
+  // Check file system exists
   if (!SPIFFS.begin()) {
     Serial.println("Formating file system");
     SPIFFS.format();
     SPIFFS.begin();
   }
 
-  // check if calibration file exists and size is correct
+  // Check if calibration file exists and size is correct
   if (SPIFFS.exists(CALIBRATION_FILE)) {
-    if (REPEAT_CAL)
-    {
+    if (REPEAT_CAL) {
       // Delete if we want to re-calibrate
       SPIFFS.remove(CALIBRATION_FILE);
-    }
-    else
-    {
+    } else {
       fs::File f = SPIFFS.open(CALIBRATION_FILE, "r");
       if (f) {
         if (f.readBytes((char *)calData, 14) == 14)
@@ -49,10 +45,10 @@ void ILI9488::touch_calibrate()
   }
 
   if (calDataOK && !REPEAT_CAL) {
-    // calibration data valid
+    // Calibration data valid
     setTouch(calData);
   } else {
-    // data not valid so recalibrate
+    // Data not valid so recalibrate
     fillScreen(TFT_BLACK);
     setCursor(20, 0);
     setTextFont(2);
@@ -74,7 +70,7 @@ void ILI9488::touch_calibrate()
     setTextColor(TFT_GREEN, TFT_BLACK);
     println("Calibration complete!");
 
-    // store data
+    // Store data
     fs::File f = SPIFFS.open(CALIBRATION_FILE, "w");
     if (f) {
       f.write((const unsigned char *)calData, 14);

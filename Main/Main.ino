@@ -22,7 +22,7 @@ const char* ssid = WIFI_SSID;
 const char* password = WIFI_PASSWD;
 
 // IP address of raspberry pi with dump1090 image
-const char* serverName = "http://192.168.178.70/dump1090/data/aircraft.json";
+const char* serverName = "http://192.168.0.103/dump1090/data/aircraft.json";
 
 // The following variables are unsigned longs because the time, measured in
 // milliseconds, will quickly become a bigger number than can be stored in an int.
@@ -32,7 +32,7 @@ unsigned long lastTime = 0;
 // Set timer to 1 seconds (1000ms)
 unsigned long timerDelay = 1000;
 // Touch coordinates;
-uint16_t t_x = 0, t_y = 0;
+point_t touch_point;
 
 
 ILI9488 display;
@@ -149,8 +149,9 @@ void loop() {
       for (const auto& aircraft : aircrafts) {
         // If location data available extract it
         if (aircraft.containsKey("lat") && aircraft.containsKey("lon")) {
-          std::string hex = aircraft["hex"].as<std::string>();
-          std::string flight = aircraft["flight"].as<std::string>();
+          const char* hex = aircraft["hex"].as<const char*>();
+          const char* flight = aircraft["flight"].as<const char*>();
+          const char* category = aircraft["category"].as<const char*>();
           float lat = aircraft["lat"].as<float>();
           float lon = aircraft["lon"].as<float>();
           float seen_pos = aircraft["seen_pos"].as<float>();
@@ -163,16 +164,19 @@ void loop() {
           // create location and vectordata from airplane data
           location_t l = { altitude, lat, lon };
           vector_t v = { speed, track, vert_rate };
+          information_t i = { hex, squawk, flight, category };
 
           // Create new airplane if it does not already exist
           if (planes.find(hex) == planes.end()) {
             Aircraft a(l);
             a.setVector(v);
+            a.setInformation(i);
             planes[hex] = a;
           } else {
-            // If it exists, update location and vectordata
+            // If it exists, update airplane data
             planes[hex].setLocation(l);
             planes[hex].setVector(v);
+            planes[hex].setInformation(i);
           }
         }
       }
@@ -183,8 +187,10 @@ void loop() {
     lastTime = millis();
   }
 
-  if (display.getTouch(&t_x, &t_y)) {
-    uint8_t id = ui.processInput({ t_x, t_y });
+  // Touch functionality
+  if (display.getTouch(&touch_point.x, &touch_point.y)) {
+    // Check if zoom buttons have been pressed
+    uint8_t id = ui.processInput(touch_point);
 
     if (id == 0) {
       if (prog.currentRange + 10 <= MAX_RANGE)
@@ -194,8 +200,16 @@ void loop() {
         ui.setRange(prog.currentRange - 10);
     }
 
-    for (auto& p : planes)
+    // Check if airplane has been touched
+    for (auto& p : planes) {
+      if (p.second.checkCollision(touch_point)) {
+        p.second.setSelected(true);
+        p.second.displayInformation();
+      }
+
+      // Update all planes after zooming in/out
       p.second.update();
+    }
   }
 }
 
