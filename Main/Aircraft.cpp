@@ -27,6 +27,7 @@ Aircraft::Aircraft(location_t _location) {
   locationSet = true;
 
   getXY();
+  previousPos.push_back({ pos.x, pos.y });
 }
 
 Aircraft::Aircraft(vector_t _vector) {
@@ -128,6 +129,10 @@ void Aircraft::erase() {
     }
   }
 
+  // Draw last position to lengthen the trail when selected
+  if (selected)
+    display.drawCircle(previousPos.back().x, previousPos.back().y, 1, RED);
+
   // If vector set and outside drawing area -> return
   if (vectorSet && vectDistance >= TFT_DRAWABLE)
     return;
@@ -144,34 +149,62 @@ void Aircraft::update() {
     getXY();
   }
 
+  /*
   if (selected)
     selected = false;
+  */
 
   if (vectorSet)
     getVectorXY();
 
   if (locationSet)
     draw();
+
+  /*
+  if (selected)
+    displayInformation();
+  */
 }
 
+// Check if touchpoint is inside aircraft
 bool Aircraft::checkCollision(point_t touch_point) {
   return (touch_point.x >= pos.x - AIRCRAFT_SIZE / 2 - 4 && touch_point.x <= pos.x + AIRCRAFT_SIZE / 2 + 4 && touch_point.y >= pos.y - AIRCRAFT_SIZE / 2 - 4 && touch_point.y <= pos.y + AIRCRAFT_SIZE / 2 + 4);
 }
 
+// Displays additional aircraft information in the top right of the screen
 void Aircraft::displayInformation() {
-  Serial.print("hex: ");
-  Serial.println(information.icao_hex);
+  try {
+    display.fillRect(5, 35, 95, 50, BLUE);
+    display.drawRoundRect(5, 35, 95, 50, 10, WHITE);
 
-  Serial.print("squawk: ");
-  Serial.println(information.squawk);
+    display.setCursor(10, 40);
+    display.setTextSize(1);
+    display.setTextColor(WHITE);
 
-  Serial.print("flight: ");
-  Serial.println(information.flight);
+    display.print("flight:");
+    display.println(information.flight);
 
-  Serial.print("category: ");
-  Serial.println(information.category);
+    display.setCursor(10, 50);
+    display.print("hex:");
+    display.println(information.icao_hex);
 
-  Serial.println();
+    display.setCursor(10, 60);
+    display.print("squawk:");
+    display.println(information.squawk);
+
+    display.setCursor(10, 70);
+    display.print("category:");
+    display.println(information.category);
+  } catch (...) {
+    Serial.println("ERROR: Unable to retrieve data!");
+  }
+}
+
+// Draws previous positions of the aircraft as a trail behind it
+void Aircraft::drawTrail(uint32_t color) {
+  for (auto& point : previousPos) {
+    display.drawCircle(point.x, point.y, 2, color);
+  }
 }
 
 #pragma endregion Functions
@@ -194,7 +227,10 @@ void Aircraft::setLocation(location_t newLocation) {
 
     location = newLocation;
 
+    previousPos.push_back({ pos.x, pos.y });
+
     getXY();
+
 
     if (vectorSet)
       getVectorXY();
@@ -240,7 +276,6 @@ void Aircraft::setInformation(information_t newInformation) {
     emergency = true;
   else
     emergency = false;
-
 }
 
 // Sets if aircraft is selected on touchscreen

@@ -2,6 +2,7 @@
 #define _AIRCRAFT_
 
 #include <cmath>
+#include <vector>
 
 #include "UI_Types.h"
 
@@ -27,6 +28,7 @@ public:
   information_t getInformation(void);
   bool getSelected(void);
   void displayInformation(void);
+  void drawTrail(uint32_t);
 
 
 private:
@@ -34,6 +36,7 @@ private:
   vector_t vector;
   location_t location;
   information_t information;
+  std::vector<point_t> previousPos;
 
   bool locationSet = false;
   bool vectorSet = false;

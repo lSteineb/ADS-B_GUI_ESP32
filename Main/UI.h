@@ -9,9 +9,6 @@
 #include "UI_Types.h"
 #include "UI_Elements.h"
 
-#define EARTH_RAD_KM 6371
-#define EARTH_RAD_NM 3440
-
 
 class UI {
 public:

@@ -44,6 +44,7 @@ HTTPClient http;
 
 JsonArray aircrafts;
 std::map<std::string, Aircraft> planes;
+std::string currentHex;
 
 mydata_t my;
 programdata_t prog;
@@ -126,6 +127,9 @@ void loop() {
       for (auto& p : planes) {
         if (round(lastTime / 1000) - p.second.getLastSeen() > 5) {
           p.second.erase();
+          if (p.second.getSelected()) {
+            p.second.drawTrail(BLACK);
+          }
           planes.erase(p.first);
         } else
           p.second.update();
@@ -186,7 +190,7 @@ void loop() {
     }
     lastTime = millis();
   }
-  
+
   // Touch functionality
   if (display.getTouch(&touch_point.x, &touch_point.y)) {
     if (!pressed) {
@@ -201,14 +205,19 @@ void loop() {
           ui.setRange(prog.currentRange - 10);
       }
 
-      // Check if airplane has been touched
+      // Check if aircraft has been touched
       for (auto& p : planes) {
         if (p.second.checkCollision(touch_point)) {
+          planes[currentHex].setSelected(false);
+          planes[currentHex].drawTrail(BLACK);
+
+          currentHex = p.first;
           p.second.setSelected(true);
           p.second.displayInformation();
+          p.second.drawTrail(RED);
         }
 
-        // Update all planes after zooming in/out
+        // Update all aircraft after zooming in/out
         p.second.update();
       }
       pressed = true;
