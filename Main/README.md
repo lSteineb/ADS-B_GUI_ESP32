@@ -1,5 +1,34 @@
-Example JSON object from raspberry pi
+The connection between the ESP32 and the tft display is acessed via a SPI connection with the following defined pin layout:
+```
+#define TFT_MISO 19  // (leave TFT SDO disconnected if other SPI devices share MISO)
+#define TFT_MOSI 23 
+#define TFT_SCLK 18  // Clock signal
+#define TFT_CS    15 // Chip select control pin
+#define TFT_DC    2  // Data Command control pin
+#define TFT_RST   4  // Reset pin (could connect to RST pin)
+#define TOUCH_CS 21     // Chip select pin (T_CS) of touch screen
+```
 
+Additionally the following pins have been used for the display:
+```
+VCC   -   3.3V
+GND   -   GND
+CS    -   P15
+Reset -   P4
+D/C   -   P2
+SDI   -   P23
+SCK   -   P18
+LED   -   3.3V
+SDO   -   P19
+
+T_CLK -   P18
+T_CS  -   P21
+T_DIN -   P23
+T_OUT -   P19
+T_IRQ -   Not connected
+```
+
+Example JSON object from raspberry pi:
 ```json
 { "now" : 1672957667.3,
   "messages" : 48737613,
