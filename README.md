@@ -1,6 +1,7 @@
 # ADS-B_GUI_ESP32
 
 This project was made in the MCT module of the applied mathematics and computer science degree of the FH Aachen.
+![IMG_20230217_152207](https://user-images.githubusercontent.com/74535078/221164047-9e5d6b45-73e5-43f1-a50c-2cb5044f7efe.jpg)
 
 It uses an ESP32 as its core to display aircraft traffic information on a tft display(ILI9488), which it gets from a 1090 MHz antenna that is conected to a raspberry pi with a [fr24 image](https://www.flightradar24.com/build-your-own).
 Each modern aircraft has to have a so called ADS-B reciever/transmitter equipped which permanently sends out aircraft information. The following table shows the available information that can be received and displayed with the current setup:
